@@ -55,10 +55,6 @@ if (exist('num_dimensions','var')==0) || (num_dimensions < 2)
     num_dimensions = 2;
 end
 
-if (num_dimensions > 2)
-    error('this implementation does not currently support design spaces > 2');
-end
-
 if (exist('curvature','var')==0)
     curvature = false;
 end
@@ -94,7 +90,7 @@ end
 
 if exist('varying_density','var')==0
     fprintf('Default used: varying density set at false\n');
-    varying_objective_difficulty = false;
+    varying_density = false;
 end
 
 if (varying_density) && (num_dimensions==2)
@@ -148,6 +144,21 @@ distance_problem_parameters.penalty_radii = zeros(number_of_discontinuous_region
 distance_problem_parameters.objective_min = zeros(num_objectives,1);
 distance_problem_parameters.objective_multiplier = ones(num_objectives,1);
 
+if (num_dimensions>2)
+    distance_problem_parameters.projection_vectors = ones(2,num_dimensions);
+    distance_problem_parameters.projection_vectors(2,:) = 0;
+    if (varying_density) % vary the density
+        difference = randperm(num_dimensions-1);
+        difference = difference(1); % random  number between 1 and num_dimensions-1
+        mask = randperm(num_dimensions);
+        mask = mask(1:difference); % select indices on/off
+    else
+        mask = randperm(num_dimensions);
+        mask = mask(1:ceil(num_dimensions/2)); % select random half of dimension indices
+    end
+    distance_problem_parameters.projection_vectors(1,mask) = 0;
+    distance_problem_parameters.projection_vectors(2,mask) = 1;
+end
 if (varying_objective_ranges)
     % objective minimas between -100 and 100
     distance_problem_parameters.objective_min = (rand(num_objectives,1)-0.5)*200;
