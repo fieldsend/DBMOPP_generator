@@ -198,64 +198,30 @@ fprintf('Centres assigned\n');
 centre_index=1;
 [distance_problem_parameters, centre_index, radius] = ...
     assign_local_fronts(distance_problem_parameters,centre_index,number_of_local_fronts,pareto_angles,radius);
+%assign disconnected Pareto sete
 [distance_problem_parameters, centre_index] = ...
     assign_disconnected_set_regions(distance_problem_parameters,centre_index,number_of_disconnected_set_regions,pareto_angles,radius);
+%asssign penaly regions for disjoint Pareto sets
 [distance_problem_parameters,region_types] = ...
     assign_penalty_regions_for_non_identical_sets(distance_problem_parameters,number_of_local_fronts,number_of_disconnected_set_regions,non_identical_pareto_sets);
+%assign dominance resisance regions
 [distance_problem_parameters, centre_index] = ...
     assign_dominance_resistance_regions(distance_problem_parameters,centre_index,number_of_dominance_resistance_regions,pareto_angles,radius,region_types);
+%assign penalty regions
 [distance_problem_parameters] = ...
     assign_penalty_regions(distance_problem_parameters,centre_index,number_of_discontinuous_regions,radius_original);
 
 if (plot_wanted)
     % now plot problem instance
-    plot_2D_regions(distance_problem_parameters,number_of_centres,number_of_discontinuous_regions,number_of_local_fronts,number_of_disconnected_set_regions,radius,num_objectives);
+    %plot_bmopp_2D_regions(distance_problem_parameters,number_of_discontinuous_regions,number_of_local_fronts,number_of_disconnected_set_regions,radius,num_objectives);
+    plot_dbmopp_2D_regions(distance_problem_parameters, number_of_discontinuous_regions,num_objectives,number_of_local_fronts,number_of_dominance_resistance_regions);
 end
 end
 
 
 % ---- HELPER FUNCTIONS ---
 
-function plot_2D_regions(distance_problem_parameters,...
-    number_of_centres,number_of_discontinuous_regions,number_of_local_fronts,number_of_disconnected_set_regions,radius,num_objectives)
 
-close all; figure; hold on;
-plot(distance_problem_parameters.centre_list(:,1), distance_problem_parameters.centre_list(:,2),'kx');
-%plot(centre_list(number_of_local_fronts:number_of_local_fronts+number_of_disconnected_set_regions-1,1), centre_list(number_of_local_fronts:number_of_local_fronts+number_of_disconnected_set_regions-1,2),'r*');
-axis([-1 1 -1 1])
-for i=1:number_of_centres-number_of_discontinuous_regions
-    if i<=number_of_local_fronts
-        c='k-';
-        add_circle_to_plot(distance_problem_parameters.centre_list(i,:),radius,c);
-    elseif i <= number_of_local_fronts+number_of_disconnected_set_regions
-        c='r-';
-        add_circle_to_plot(distance_problem_parameters.centre_list(i,:),radius,c);
-    else % dominance resistance regions
-        c='b-';
-        add_circle_to_plot(distance_problem_parameters.centre_list(i,:),radius,c);
-        %add_circle_to_plot(centre_list(i,:),4*radius,c);
-    end
-    
-end
-for i=1:number_of_discontinuous_regions
-    add_circle_to_plot(distance_problem_parameters.penalty_centre_list(i,:),distance_problem_parameters.penalty_radii(i),'g-');
-end
-
-
-for i=1:length(distance_problem_parameters.region_penalty_radii)
-    add_circle_to_plot(distance_problem_parameters.region_penalty_locations(i,:),distance_problem_parameters.region_penalty_radii(i),'g-');
-end
-
-axis square
-
-for i=1:num_objectives
-    plot(distance_problem_parameters.distance_vectors(i).coordinates(:,1),distance_problem_parameters.distance_vectors(i).coordinates(:,2),'bo');
-end
-
-xlabel('x_1')
-ylabel('x_2')
-
-end
 
 
 function angles = get_random_angles(n)
@@ -477,11 +443,4 @@ if (time_elapsed>MAX_ELAPSED)
 end
 
 
-end
-
-function add_circle_to_plot(centre,radius,c)
-step = 0:pi/100:2*pi;
-x = radius * cos(step) + centre(1);
-y = radius * sin(step) + centre(2);
-plot(x, y,c);
 end

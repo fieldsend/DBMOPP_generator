@@ -1,6 +1,13 @@
 function [perimeter_list, optima_list, region_list,mode_matrix,basin_matrix, basin_boundary_matrix] ...
     = gecco_2019_2D_basin_plot(dpp,n)
-
+ 
+% function [perimeter_list, optima_list, region_list,mode_matrix,basin_matrix, basin_boundary_matrix] ...
+%    = gecco_2019_2D_basin_plot(dpp,n)   
+%
+%dpp = distance-based point structure from generator
+% n = number of samples per axis (grid resolution)
+    
+    
 x = linspace(-1,1,n);
 step = (x(2)-x(1))*0.8;
 X = zeros(n,n);
@@ -77,6 +84,7 @@ basin_matrix = zeros(n,n);
 perimeter_matrix = zeros(n,n);
 basin_boundary_matrix = zeros(n,n);
 % find modal members and fill optima_list
+% using moore neighbourhood
 for i=1:n
     for j=1:n
         number_dominated_by = 0;
