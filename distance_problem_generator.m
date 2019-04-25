@@ -5,22 +5,28 @@ function [distance_problem_parameters] = distance_problem_generator(num_objectiv
     varying_density,non_identical_pareto_sets,varying_objective_ranges, ...
     fill_space,plot_wanted,random_seed)
 
-%[P] = distance_problem_generator(num_objectives,num_dimensions,curvature,...
-%    number_of_disconnected_set_regions,number_of_local_fronts,...
-%    number_of_dominance_reistance_regions,varying_objective_difficulty, ...
-%    disconnect_pareto_front)
+%[distance_problem_parameters] = distance_problem_generator(num_objectives,
+%   num_dimensions,curvature, number_of_disconnected_set_regions,...
+%    number_of_local_fronts,number_of_dominance_resistance_regions, ...
+%    number_of_discontinuous_regions,...
+%    varying_density,non_identical_pareto_sets,varying_objective_ranges, ...
+%    fill_space,plot_wanted,random_seed)
 %
 % num_objectives = number of objectives
 % num_dimensions = number of dimensions [minium 2, OPTIONAL - default 2]
-% curvature = flag to add concave region. [OPTIONAL, default false]
+% curvature = flag to add concave region. [OPTIONAL, default false] -- NOTE
+%                  THIS FUNCTIONALITY IS STILL IN DEVELOPMENT AND NOT IN
+%                  THIS VERSION
 % number_of_disconnected_set_regions = number of disconnected set regions.
-%                  [minium 1 (i.e. connected), OPTIONAL - default 1]
+%                  [minium 0 (i.e. connected), OPTIONAL - default 0]
 % number_of_local_fronts = number of additional local fronts. [minium 0 (i.e. single
 %                  global), OPTIONAL - default 0]
 % number_of_dominance_resistance_regions = number of dominance resistance
 %                  regions [minium 0 (i.e. none), OPTIONAL - default 0]
 % number_of_discontinuous_regions = number regions of discontinuarity (inc. 
-%                  neutrality) [OPTIONAL - default 0]
+%                  neutrality) [OPTIONAL - default 0] -- NOTE
+%                  THIS FUNCTIONALITY IS STILL IN DEVELOPMENT AND NOT IN
+%                  THIS VERSION
 % varying_density = flag to indicate if their can be a varying mapping
 %                  density to x1 than x2 when num_dimensions>2 [OPTIONAL, 
 %                  default false, must be false when num_dimensions=2] 
@@ -41,14 +47,17 @@ function [distance_problem_parameters] = distance_problem_generator(num_objectiv
 % and rotation angle (3 parameters per addition region) on top of the 2+1+D
 % for the Pareto set
 %
-% In the optional plot, red circles indicate circumference of zones for
-% Pareto sets, black circles denote circumference of zones for local
-% fronts, blue circles denote circumference of zones for dominance
-% resistance regions. All points in green circles have penalties applied,
+% In the optional plot, black circles indicate circumference of zones for
+% Pareto sets. All points in red circles have penalties applied,
 % causing discontinuities in objective landscaes, and cutting out regions
 % of disconnected Pareto sets
 %
-% Jonathan Fieldsend, University of Exeter, 2018
+% Currently curvature option not enabled. When D>2 a single pair of
+% orthagonal vectors are used for all projections.
+%
+% Jonathan Fieldsend, University of Exeter, 2018,2019
+% See license information in package, available at 
+% https://github.com/fieldsend/DBMOPP_generator
 
 % set up optional values
 if (exist('num_dimensions','var')==0) || (num_dimensions < 2)
@@ -63,9 +72,9 @@ if (curvature)
    error('Varying curvature not in this version \n'); 
 end
 
-if (exist('number_of_disconnected_set_regions','var')==0) || (number_of_disconnected_set_regions < 1)
+if (exist('number_of_disconnected_set_regions','var')==0) || (number_of_disconnected_set_regions < 0)
     fprintf('Default used: single connected Pareto set\n');
-    number_of_disconnected_set_regions = 1;
+    number_of_disconnected_set_regions = 0;
 end
 
 if (exist('number_of_local_fronts','var')==0) || (number_of_local_fronts < 0)
@@ -124,6 +133,8 @@ if exist('random_seed','var')==1
 end
 
 % NOW ALLOCATE INSTANCE
+
+number_of_disconnected_set_regions = number_of_disconnected_set_regions+1; % increment as used as number of regions
 
 number_of_penalty_regions = number_of_discontinuous_regions; %initial penalty locations
 % number of different distinct regions that will need to be fitted
@@ -213,7 +224,6 @@ centre_index=1;
 
 if (plot_wanted)
     % now plot problem instance
-    %plot_bmopp_2D_regions(distance_problem_parameters,number_of_discontinuous_regions,number_of_local_fronts,number_of_disconnected_set_regions,radius,num_objectives);
     plot_dbmopp_2D_regions(distance_problem_parameters, number_of_discontinuous_regions,num_objectives,number_of_local_fronts,number_of_dominance_resistance_regions);
 end
 end

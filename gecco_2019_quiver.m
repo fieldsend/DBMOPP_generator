@@ -1,5 +1,17 @@
 function [X,Q] = gecco_2019_quiver(dpp,n)
 
+% [X,Q] = gecco_2019_quiver(dpp,n)
+%
+% helper function for quiver plots
+%
+% dpp = problem instance
+% n = grid resolution
+%
+% Jonathan Fieldsend, University of Exeter, 2018,2019
+% See license information in package, available at 
+% https://github.com/fieldsend/DBMOPP_generator
+
+
 x = linspace(-1,1,n);
 step = (x(2)-x(1))*0.8;
 X = zeros(n,n);

@@ -1,5 +1,15 @@
 function plot_dbmopp_2D_regions(distance_problem_parameters,...
-    number_of_discontinuous_regions,num_objectives,number_of_local_fronts,num_dom_res_regions)%,number_of_disconnected_set_regions,radius
+    number_of_discontinuous_regions,num_objectives,number_of_local_fronts,num_dom_res_regions)
+
+% function plot_dbmopp_2D_regions(distance_problem_parameters,...
+%    number_of_discontinuous_regions,num_objectives,number_of_local_fronts,num_dom_res_regions)
+%
+% Used by the generator to plot some of the problem attractors/penalty
+% locations
+%
+% Jonathan Fieldsend, University of Exeter, 2018,2019
+% See license information in package, available at 
+% https://github.com/fieldsend/DBMOPP_generator
     
 
 number_of_centres = size(distance_problem_parameters.centre_list,1);

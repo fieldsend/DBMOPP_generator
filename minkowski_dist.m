@@ -1,5 +1,12 @@
 function d = minkowski_dist(x,X,p)
 
+% Function for arbitary Minkowski distances (NOT USED IN CURRENT GENERATOR)
+%
+% Jonathan Fieldsend, University of Exeter, 2018,2019
+% See license information in package, available at 
+% https://github.com/fieldsend/DBMOPP_generator
+
+
 [n,m] = size(X);
 [n1,m1] = size(x);
 if (m~=m1)

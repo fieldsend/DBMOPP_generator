@@ -6,6 +6,15 @@ function [perimeter_list, optima_list, region_list,mode_matrix,basin_matrix, bas
 %
 %dpp = distance-based point structure from generator
 % n = number of samples per axis (grid resolution)
+%
+% Generates various 2D basin plots for the given problem structue at the 
+% grid resolution provided
+%
+%
+% Jonathan Fieldsend, University of Exeter, 2018,2019
+% See license information in package, available at 
+% https://github.com/fieldsend/DBMOPP_generator
+
     
     
 x = linspace(-1,1,n);

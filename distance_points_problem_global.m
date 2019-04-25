@@ -1,5 +1,7 @@
 function [y] = distance_points_problem_global(x,t)
 
+
+
     global DISTANCE_PROBLEM_PARAMETERS
     if (length(x)>2)
        % projection being used, need to map back 

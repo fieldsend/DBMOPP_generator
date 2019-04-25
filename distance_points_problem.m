@@ -10,10 +10,15 @@ function [y] = distance_points_problem(x,distance_problem_parameters)
 %         then a global variable named DISTANCE_PROBLEM_PARAMETERS must be 
 %         set with this structure 
 % OUTPUTS
-% 
+%
 % y = objective values assocaited with this x, given the problem instance
 %
-% Jonathan Fieldsend, University of Exeter, 2018
+% Cost funtion takes in design vector and evaluates it under the problem 
+% structure 
+%
+% Jonathan Fieldsend, University of Exeter, 2018,2019
+% See license information in package, available at 
+% https://github.com/fieldsend/DBMOPP_generator
 
 global DISTANCE_PROBLEM_PARAMETERS
 
