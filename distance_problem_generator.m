@@ -27,7 +27,7 @@ function [distance_problem_parameters] = distance_problem_generator(num_objectiv
 %                  neutrality) [OPTIONAL - default 0] -- NOTE
 %                  THIS FUNCTIONALITY IS STILL IN DEVELOPMENT AND NOT IN
 %                  THIS VERSION
-% varying_density = flag to indicate if their can be a varying mapping
+% varying_density = flag to indicate if there can be a varying mapping
 %                  density to x1 than x2 when num_dimensions>2 [OPTIONAL, 
 %                  default false, must be false when num_dimensions=2] 
 % non_identical_pareto_sets = flag to indicate if disconnected Pareto sets 
