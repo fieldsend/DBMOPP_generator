@@ -55,6 +55,11 @@ function [distance_problem_parameters] = distance_problem_generator(num_objectiv
 % Currently curvature option not enabled. When D>2 a single pair of
 % orthagonal vectors are used for all projections.
 %
+% If the fill_space flag is used, it will try and pack in the regions with 
+% largest possible radii, and restart if unsuccessful after 5 seconds
+% with slightly smaller radii. This time constant is in the place_regions
+% subroutine if you need it longer/shorter on your machine.
+%
 % Jonathan Fieldsend, University of Exeter, 2018,2019
 % See license information in package, available at 
 % https://github.com/fieldsend/DBMOPP_generator
