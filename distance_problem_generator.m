@@ -250,7 +250,7 @@ if (number_of_local_fronts > 0)
     scaling = linspace(1,2,number_of_local_fronts+1);
     for j=2:number_of_local_fronts+1
         V = repmat(distance_problem_parameters.centre_list(centre_index,:),length(angles),1)...
-            +repmat(radius*scaling(j),1,2).*[cos(angles+distance_problem_parameters.rotations(centre_index)), sin(angles+distance_problem_parameters.rotations(centre_index))];
+            +repmat(radius*scaling(j),length(angles),2).*[cos(angles+distance_problem_parameters.rotations(centre_index)), sin(angles+distance_problem_parameters.rotations(centre_index))];
         for k=1:length(angles)
             distance_problem_parameters.distance_vectors(k).coordinates = ...
                 [distance_problem_parameters.distance_vectors(k).coordinates; V(k,:)];
@@ -265,7 +265,7 @@ function [distance_problem_parameters, centre_index] = assign_disconnected_set_r
 % assign disconnected sets
 for i=1:number_of_disconnected_set_regions
     V = repmat(distance_problem_parameters.centre_list(centre_index,:),length(angles),1)+...
-        repmat(radius,1,2).*[cos(angles+distance_problem_parameters.rotations(centre_index)), sin(angles+distance_problem_parameters.rotations(centre_index))];
+        repmat(radius,length(angles),2).*[cos(angles+distance_problem_parameters.rotations(centre_index)), sin(angles+distance_problem_parameters.rotations(centre_index))];
     for k=1:length(angles)
         distance_problem_parameters.distance_vectors(k).coordinates = [distance_problem_parameters.distance_vectors(k).coordinates; V(k,:)];
     end
@@ -279,7 +279,7 @@ n = length(angles);
 % assign dominance resistance regions
 for i=1:number_of_dominance_resistance_regions
     V = repmat(distance_problem_parameters.centre_list(centre_index,:),length(angles),1)...
-        +repmat(radius,1,2).*[cos(angles+distance_problem_parameters.rotations(centre_index)), sin(angles+distance_problem_parameters.rotations(centre_index))];
+        +repmat(radius,length(angles),2).*[cos(angles+distance_problem_parameters.rotations(centre_index)), sin(angles+distance_problem_parameters.rotations(centre_index))];
     if isempty(region_types)==false
         % special case where non-identical pareto sets used, so penalties
         % need to also be applied to dominance resistance locations
