@@ -25,3 +25,5 @@ distance_problem_generator -- this generates a problem instance (please see its 
 distance_points_problem -- this takes a design vector and a problem instance and returns its quality vector (please see its help documentation)
 
 Other .m files are helper/plotter functions.
+
+It is recommended currently that you download and use the Release 1.0.0 (as new features are being added currently so current version should be considered unstable).
