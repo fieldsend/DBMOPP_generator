@@ -15,7 +15,7 @@ function [perimeter_list, optima_list, region_list,mode_matrix,basin_matrix, bas
 % See license information in package, available at 
 % https://github.com/fieldsend/DBMOPP_generator
 
-    
+
     
 x = linspace(-1,1,n);
 step = (x(2)-x(1))*0.8;
@@ -64,9 +64,12 @@ for i=1:n
         end
     end
 end
-figure; imagesc(B')
-set(gca,'YDir','normal')
-
+figure; pcolor(x,x,B');%imagesc(B')
+shading flat;
+set(gca,'YDir','normal');
+ylabel('$x_2$','Interpreter','latex');
+xlabel('$x_1$','Interpreter','latex');
+set(gca,'FontSize',20);
 % figure;
 % hold on;
 % for i=1:length(perimeter_list)
