@@ -1,14 +1,13 @@
 # DBMOPP_generator
 
+Codebase for Distance-based Multi-Objective Point Problem instances.
 
-Matlab codebase for
-
+Note that a substaional new version of the generator, including an Object-Oriented design, and the integration of hard and soft constraints and additional features is currently under review, and will be published here on acceptance. In the meantime, in the folder GECCO2019 is a Matlab codebase version of the generator, corresponding to the paper
 
 Jonathan E. Fieldsend, Tinkle Chugh, Richard Allmendinger, and Kaisa Miettinen.
 2019. A Feature Rich Distance-Based Many-Objective Visualisable
 Test Problem Generator. In Genetic and Evolutionary Computation Conference
 (GECCO ’19), July 13–17, 2019, Prague, Czech Republic. ACM, New York
-
 
 Paper availabale from
 
