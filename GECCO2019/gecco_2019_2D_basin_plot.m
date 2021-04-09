@@ -8,15 +8,22 @@ function [perimeter_list, optima_list, region_list, mode_matrix, basin_matrix, B
 %
 % dpp = distance-based point structure from the generator
 % n = number of samples per axis (grid resolution)
-% function_flag = (OPTIONAL) if argument value is true, dpp is treated as a
-%     function name instead of as a distance-based point structure from the 
-%     generator. Default value is false
+% function_flag = (OPTIONAL) if argument value is 0, dpp is treated as a 
+%     distance-based point structure instance from the generator. If the 
+%     argument is 1, dpp is treated as a function name in a string, and 
+%     will be invoked with feval assumingthe form y = f(x,num_objs). If the
+%     argument value is 2, dpp is assumed to be a n by n by num_objs matrix 
+%     holding precomputed values. Default argument value if not supplied is
+%     0.
 % num_objs = (OPTIONAL) used if function_flag is true. Number of objectives
-%     in function argument.
+%     in function argument. Will take from distance-based point structure
+%     if not supplied.
 % min_v = (OPTIONAL) used if function_flag is true. Minimum design space 
-%     values (box constraint lower bound) 
+%     values (box constraint lower bound). Will use -1 if not supplied, as 
+%     distance-based point structure assumed
 % max_v = (OPTIONAL) used if function_flag is true. Maximum design space 
-%     values (box constraint upper bound) 
+%     values (box constraint upper bound). Will use 1 if not supplied, as 
+%     distance-based point structure assumed
 %
 % OUTPUTS
 %
@@ -64,28 +71,32 @@ function [perimeter_list, optima_list, region_list, mode_matrix, basin_matrix, B
 % https://github.com/fieldsend/DBMOPP_generator
 
 if exist('function_flag','var') == false
-    function_flag = false;
+    function_flag = 0;
 end
-if (function_flag)    
-    x = linspace(min_v,max_v,n);
-else
+if (function_flag == 0)    
     x = linspace(-1,1,n);
     min_v = -1;
     max_v = 1;
     num_objs=dpp.num_objectives;
+else
+    x = linspace(min_v,max_v,n);
 end
 
 R = zeros(n,n,num_objs);
 
-% get qualities for each
-for i=1:n
-    for j=1:n
-        if (function_flag)
-            t = feval(dpp,[x(i), x(j)],num_objs);
-        else
-            t = distance_points_problem([x(i), x(j)],dpp);
+if (function_flag==2)
+    R = dpp;
+else
+    % get qualities for each
+    for i=1:n
+        for j=1:n
+            if (function_flag==1)
+                t = feval(dpp,[x(i), x(j)],num_objs);
+            else
+                t = distance_points_problem([x(i), x(j)],dpp);
+            end
+            R(i,j,:) = t';
         end
-        R(i,j,:) = t';
     end
 end
 
