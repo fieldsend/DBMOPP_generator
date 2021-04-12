@@ -66,6 +66,8 @@ function [perimeter_list, optima_list, region_list, mode_matrix, basin_matrix, B
 % instance from the generator, or another function (assumed to take a two 
 % element design vector, and the number of objectives as an argument)
 %
+% Uses dits2 from Ian Nabney's Netlab toolbox
+%
 % Jonathan Fieldsend, University of Exeter, 2018, 2019, 2021
 % See license information in package, available at 
 % https://github.com/fieldsend/DBMOPP_generator
@@ -125,6 +127,7 @@ set(gca,'YDir','normal');
 ylabel('$x_2$','Interpreter','latex');
 xlabel('$x_1$','Interpreter','latex');
 set(gca,'FontSize',20);
+caxis([-1 1]); % in case a single basin of attraction
 
 
 end
