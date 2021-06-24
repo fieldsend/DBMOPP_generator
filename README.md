@@ -31,9 +31,37 @@ The public methods of this class are as follows:
 
 <code>isAParetoSetMember(x, suppressWarning)</code> Returns true if <code>x</code> is a Pareto set member, false otherwise. Obviously you should not be using this method during an optimisation! Pass <code>suppressWarning</code> as true if you don't want to be reminded of this...
 
-<code>getAParetoSetMember</code>
+<code>getAParetoSetMember()</code> Returns a Pareto decision vector uniformly at random for this instance
 
-<code>evaluate</code>
+<code>evaluate(x)</code> evaluates a design vector <code>x<\code>
+
+Help information can be access at the commandline for each of the public methods, e.g. the command
+
+<code>help DBMOPP/evaluate</code>
+
+will display
+
+<code>
+    [objective_vector, soft_constraint_violation, hard_constraint_violation] = evaluate(obj,x)
+ 
+    Evalutes the design vector x under this instance of the problem
+ 
+    INPUTS
+    x = design vector to evaluate, should adhere to the box
+      constraints of the problem, i.e. between -1 and +1 on all
+      dimensions
+ 
+    OUTPUTS
+  
+    objective_vector = vector of objective values associated with
+      x for this DBMOPP problem. If x violates any soft or hard
+      constraints will be a vector of NaNs
+    soft_constraint_violation = Soft constraint violation. 0 if
+      no violation, otherwise value increases with distance to the
+      boundary from the constrain/legal space
+      hard_constraint_violation = Hard constraint violation. Value
+      of true if there is a violation, false otherwise 
+ </code>
 
 First let's create an instance from the generator, this is done with the constructor:
 
