@@ -11,22 +11,32 @@ This substaional new version of the generator, including the integration of hard
 Jonathan E. Fieldsend, Tinkle Chugh, Richard Allmendinger, and Kaisa Miettinen. 
 2021. A Visualizable Test Problem Generator for Many-Objective Optimization, 
 IEEE Transactions on Evolutionary Computation, 
-to appear. doi: 10.1109/TEVC.2021.3084119.
+to appear. doi: https://10.1109/TEVC.2021.3084119.
 
 All instance generation functionality is in this version, there are a few "quality of life" methods still still be completed over the next month which allow you to sample Pareto members, and some additionally plotting functions, but the stubs are in the class and details are below, with illustrations of usage.
 
 ## DBMOPP class
 
+First let's create an instance from the generator, this is done with the constructor:
+
  <code>DBMOPP(numberOfObjectives, numberOfDesignVariables, numberOfLocalParetoSets, numberOfDominanceResistanceRegions, numberOfGlobalParetoSets, proportionOfConstrainedSpaceIfChecker, globalParetoSetType, constraintType, numberOfdiscontinousObjectiveFunctionRegions, variableSolutionDensity, varyingObjectiveScales, proportionOfNeutralSpace, monte_carlo_samples)</code> 
  
-Creates a DBMOPP instance based on the arguments. Default values are used when arguments are missing (see documentation in code). An example would be
+creates a DBMOPP instance based on the arguments. Default values are used when arguments are missing (see documentation in code). An example would be
 
 <code>my_instance = DBMOPP(4,2,0,0,5,0,1,0,0,false,false,0)</code>
 
 This creates <code>my_instance</code> which has 4 objectives, 2 descision variables, 5 disconnected Pareto set regions which have global Pareto set type '1', meaning they are partially intersecting -- the entire Pareto front can be described by fewer than five of the regions, but not one alone.
 
+Calling <code>my_instance.plotProblemInstance()> plots a helpful visualisation of the problem as constructed, in this case, 
+ 
+![Constructed problem instance](/assets/images/instance_regions.jpg "Constructed problem instance")
 
+As we don't have e.g. any constrained space, or neutral space in this instance example, it is showing the attractor locations (labelled with the objective they minimise) and the convex hull of the region they bound.
+ 
+Calling <code>my_instance.plotParetoSetMembers()> plots which samples on the default resolution (a 500 by 500 grid) are Pareto optimal. As we have set up a partially intersecting Pareto set type, some areas in the convex hull are additionally penalised (the objective values increased), meaning they are not Pareto optimal, this plot shows us the Pareto optimal locations from the grid of samples 
 
+![Pareto optimal points from grid](/assets/images/instance_pareto.jpg "Pareto optimal points from grid")
+ 
 ### Stub methods
 
 The current methods are stubs and will throw errors, they will be filled in shortly
