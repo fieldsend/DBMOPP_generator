@@ -17,6 +17,7 @@ All instance generation functionality is in this version, there are a few "quali
 
 ## DBMOPP class
 
+### Public methods
 The public methods of this class are as follows:
 
 <code>DBMOPP(numberOfObjectives, numberOfDesignVariables, numberOfLocalParetoSets, numberOfDominanceResistanceRegions, numberOfGlobalParetoSets, proportionOfConstrainedSpaceIfChecker, globalParetoSetType, constraintType, numberOfdiscontinousObjectiveFunctionRegions, variableSolutionDensity, varyingObjectiveScales, proportionOfNeutralSpace, monte_carlo_samples)</code> Which constructs and instance of the problem 
@@ -63,6 +64,8 @@ will display
       of true if there is a violation, false otherwise 
  </code>
 
+### Example usage
+
 First let's create an instance from the generator, this is done with the constructor:
 
  <code>DBMOPP(numberOfObjectives, numberOfDesignVariables, numberOfLocalParetoSets, numberOfDominanceResistanceRegions, numberOfGlobalParetoSets, proportionOfConstrainedSpaceIfChecker, globalParetoSetType, constraintType, numberOfdiscontinousObjectiveFunctionRegions, variableSolutionDensity, varyingObjectiveScales, proportionOfNeutralSpace, monte_carlo_samples)</code> 
@@ -83,6 +86,10 @@ Calling <code>my_instance.plotParetoSetMembers()</code> plots which samples on t
 
 ![Pareto optimal points from grid](/assets/images/instance_pareto.jpg "Pareto optimal points from grid")
  
+If we look at the fitness landscape for objectve 1, by calling <code>my_instance.plotLandscapeForSingleObjective(1,500)</code>, we can see how this is affected both bu the attractors in each region, and the offset applied inside the convex hull of the attractor groupings defining the regions, to induce the partially overlapping Pareto sets. 
+ 
+![Objective 1 landscape](/assets/images/example_objective1.jpg "Objective 1 landscape")
+
 ### Stub methods
 
 The current methods are stubs and will throw errors, they will be filled in shortly
