@@ -33,7 +33,7 @@ The public methods of this class are as follows:
 
 <code>getAParetoSetMember()</code> Returns a Pareto decision vector uniformly at random for this instance
 
-<code>evaluate(x)</code> evaluates a design vector <code>x<\code>
+<code>evaluate(x)</code> evaluates a design vector <code>x</code>
 
 Help information can be access at the commandline for each of the public methods, e.g. the command
 
