@@ -27,13 +27,13 @@ creates a DBMOPP instance based on the arguments. Default values are used when a
 
 This creates <code>my_instance</code> which has 4 objectives, 2 descision variables, 5 disconnected Pareto set regions which have global Pareto set type '1', meaning they are partially intersecting -- the entire Pareto front can be described by fewer than five of the regions, but not one alone.
 
-Calling <code>my_instance.plotProblemInstance()> plots a helpful visualisation of the problem as constructed, in this case, 
+Calling <code>my_instance.plotProblemInstance()</code> plots a helpful visualisation of the problem as constructed, in this case, 
  
 ![Constructed problem instance](/assets/images/instance_regions.jpg "Constructed problem instance")
 
 As we don't have e.g. any constrained space, or neutral space in this instance example, it is showing the attractor locations (labelled with the objective they minimise) and the convex hull of the region they bound.
  
-Calling <code>my_instance.plotParetoSetMembers()> plots which samples on the default resolution (a 500 by 500 grid) are Pareto optimal. As we have set up a partially intersecting Pareto set type, some areas in the convex hull are additionally penalised (the objective values increased), meaning they are not Pareto optimal, this plot shows us the Pareto optimal locations from the grid of samples 
+Calling <code>my_instance.plotParetoSetMembers()</code> plots which samples on the default resolution (a 500 by 500 grid) are Pareto optimal. As we have set up a partially intersecting Pareto set type, some areas in the convex hull are additionally penalised (the objective values increased), meaning they are not Pareto optimal, this plot shows us the Pareto optimal locations from the grid of samples 
 
 ![Pareto optimal points from grid](/assets/images/instance_pareto.jpg "Pareto optimal points from grid")
  
