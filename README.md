@@ -66,14 +66,11 @@ will display
 
 ### Example usage
 
-First let's create an instance from the generator, this is done with the constructor:
+First let's create an instance from the generator, this is done with the constructor, which creates a DBMOPP instance based on the arguments. Default values are used when arguments are missing (see documentation in code). An example would be
 
- <code>DBMOPP(numberOfObjectives, numberOfDesignVariables, numberOfLocalParetoSets, numberOfDominanceResistanceRegions, numberOfGlobalParetoSets, proportionOfConstrainedSpaceIfChecker, globalParetoSetType, constraintType, numberOfdiscontinousObjectiveFunctionRegions, variableSolutionDensity, varyingObjectiveScales, proportionOfNeutralSpace, monte_carlo_samples)</code> 
- 
-creates a DBMOPP instance based on the arguments. Default values are used when arguments are missing (see documentation in code). An example would be
-
-<code>my_instance = DBMOPP(4,2,0,0,5,0,1,0,0,false,false,0)</code>
-
+```Matlab
+my_instance = DBMOPP(4,2,0,0,5,0,1,0,0,false,false,0)
+```
 This creates <code>my_instance</code> which has 4 objectives, 2 descision variables, 5 disconnected Pareto set regions which have global Pareto set type '1', meaning they are partially intersecting -- the entire Pareto front can be described by fewer than five of the regions, but not one alone.
 
 Calling <code>my_instance.plotProblemInstance()</code> plots a helpful visualisation of the problem as constructed, in this case, 
