@@ -42,7 +42,7 @@ Help information can be access at the commandline for each of the public methods
 
 will display
 
-<code>
+```
     [objective_vector, soft_constraint_violation, hard_constraint_violation] = evaluate(obj,x)
  
     Evalutes the design vector x under this instance of the problem
@@ -62,7 +62,7 @@ will display
       boundary from the constrain/legal space
       hard_constraint_violation = Hard constraint violation. Value
       of true if there is a violation, false otherwise 
- </code>
+```
 
 ### Example usage
 
