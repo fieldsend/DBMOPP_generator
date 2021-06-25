@@ -238,7 +238,7 @@ classdef DBMOPP < handle
         
         %--
         function plotDominanceLandscape(obj,resolution)
-            % plotDominanceLandscape(obj,index,resolution)
+            % plotDominanceLandscape(obj,resolution)
             %
             % INPUT
             %
