@@ -71,7 +71,7 @@ First let's create an instance from the generator, this is done with the constru
 ```Matlab
 my_instance = DBMOPP(4,2,0,0,5,0,1,0,0,false,false,0);
 ```
-This creates <code>my_instance</code> which has 4 objectives, 2 descision variables, 5 disconnected Pareto set regions which have global Pareto set type '1', meaning they are partially intersecting -- the entire Pareto front can be described by fewer than five of the regions, but not one alone.
+This creates <code>my_instance</code> which has 4 objectives, 2 decision variables, 5 disconnected Pareto set regions which have global Pareto set type '1', meaning they are partially intersecting -- the entire Pareto front can be described by fewer than five of the regions, but not one alone.
 
 Calling 
 ```Matlab
