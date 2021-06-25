@@ -69,17 +69,41 @@ classdef DBMOPP < handle
             
             % obj = DBMOPP(numberOfObjectives, numberOfDesignVariables, numberOfLocalParetoSets, numberOfDominanceResistanceRegions, ...
             %                numberOfGlobalParetoSets, proportionOfConstrainedSpaceIfChecker, globalParetoSetType, constraintType, ...
-            %                numberOfdiscontinuousObjectiveFunctionRegions, variableSolutionDensity, varyingObjectiveScales, proportionOfNeutralSpace)
+            %                numberOfdiscontinuousObjectiveFunctionRegions, variableSolutionDensity, varyingObjectiveScales, proportionOfNeutralSpace,...
+            %                monte_carlo_samples)
             %
             % DBMOPP instance constructor -- returns a random instance of a DBMOPP
             % problem, whose characteristics are defined by the arguments
             %
-            % setType
-            % constraintType -> 0 (no constraint), 1 to 4 hard vertex, centre,
-            %       moat and extended checker. 5 to 8 soft vertex, centre, moat
-            %       and extended checker.
-            % globalParetoSetType -> 0 (duplicate performance), 1 (partially
+            % INPUTS
+            %
+            % numberOfObjectives = number of objectives in instance
+            % numberOfDesignVariables = number of design variables (minimum 2)
+            % numberOfLocalParetoSets = number of local Pareto sets, minimum 0
+            % numberOfDominanceResistanceRegions = number of dominance
+            %     resistance regions, minimum 0
+            % numberOfGlobalParetoSets = number of Pareto sets (disconnected), 
+            %     minimum 1
+            % proportionOfConstrainedSpaceIfChecker = if extended checker constraint
+            %     type is used, proportion of 2D design space to be of this
+            %     type
+            % globalParetoSetType = 0 (duplicate performance), 1 (partially
             %       overlapping performance), 2 (non-intersecting performance)
+            % constraintType = 0 (no constraint), 1 to 4 hard vertex, centre,
+            %       moat and extended checker. 5 to 8 soft vertex, centre, moat
+            %       and extended checker
+            % numberOfdiscontinuousObjectiveFunctionRegions = number of
+            %     regions to apply whose boundaries cause discontinuities
+            %     in objective functions
+            % variableSolutionDensity = Should solution density vary in
+            %     mapping down to each of the two visualised dimensions?
+            %     (true or false)
+            % varyingObjectiveScales = are objective scale varied? (true or
+            %     false)
+            % proportionOfNeutralSpace = proportion of 2D space to make
+            %     neutral
+            % monte_carlo_samples = default 10000
+            
             
             
             if (numberOfObjectives < 1)
