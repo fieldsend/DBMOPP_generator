@@ -288,27 +288,24 @@ classdef DBMOPP < handle
             
             % plot local Pareto set regions
             for i = 1 : obj.numberOfLocalParetoSets
-                %rectangle('Position',[obj.centreList(i,1)-obj.centreRadii(i), obj.centreList(i,2)-obj.centreRadii(i), 2*obj.centreRadii(i), 2*obj.centreRadii(i)],'Curvature',[1, 1],'EdgeColor', [1 0 0])
                 C = convhull(obj.attractorRegions{i}.locations);
                 fill(obj.attractorRegions{i}.locations(C,1),obj.attractorRegions{i}.locations(C,2),'g');
             end
             
             % plot global Pareto set regions
             for i = obj.numberOfLocalParetoSets+1 : obj.numberOfLocalParetoSets + obj.numberOfGlobalParetoSets
-                %rectangle('Position',[obj.centreList(i,1)-obj.centreRadii(i), obj.centreList(i,2)-obj.centreRadii(i), 2*obj.centreRadii(i), 2*obj.centreRadii(i)],'Curvature',[1, 1],'EdgeColor', [0 0 0])
                 C = convhull(obj.attractorRegions{i}.locations);
                 fill(obj.attractorRegions{i}.locations(C,1),obj.attractorRegions{i}.locations(obj.attractorRegions{i}.convhull,2),'r');
             end
             
             % plot dominance resistance set regions
             for i = obj.numberOfLocalParetoSets + obj.numberOfGlobalParetoSets + 1: obj.numberOfLocalParetoSets + obj.numberOfGlobalParetoSets + obj.numberOfDominanceResistanceRegions
-                %rectangle('Position',[obj.centreList(i,1)-obj.centreRadii(i), obj.centreList(i,2)-obj.centreRadii(i), 2*obj.centreRadii(i), 2*obj.centreRadii(i)],'Curvature',[1, 1],'EdgeColor', [0 0 1])
                 [n,~] = size(obj.attractorRegions{i}.locations);
                 if n>2
                     C = convhull(obj.attractorRegions{i}.locations);
                 end
-                %obj.attractorRegions{i}.locations
                 if n==1
+                    % just draw the point
                     plot(obj.attractorRegions{i}.locations(:,1),obj.attractorRegions{i}.locations(:,2),'b.');
                 elseif n>2 % enough to draw an area
                     fill(obj.attractorRegions{i}.locations(C,1),obj.attractorRegions{i}.locations(obj.attractorRegions{i}.convhull,2),'b');
@@ -708,7 +705,7 @@ classdef DBMOPP < handle
                 obj.placeDisconnectedParetoElements();
             end
             obj.placeDiscontiunitiesNeutralAndCheckerConstraints();
-            % set the neural avlue to be the same in all neutral locations
+            % set the neutral value to be the same in all neutral locations
             obj.neutralRegionObjectiveValues = ones(1,obj.numberOfObjectives)*obj.neutralRegionObjectiveValues;
             obj.placeVertexConstraintLocations();
             obj.placeCentreConstraintLocations();
@@ -734,10 +731,8 @@ classdef DBMOPP < handle
             else
                 offset2Angle = obj.paretoAngles(I(pivotIndex+1));
             end
-            % angles at offsetIndex1 and offsetIndex2 bracket that at the pivot
+            % angles at offset1 and offset2 bracket that at the pivot
             
-            %offset1Angle = obj.paretoAngles(offsetIndex1);
-            %offset2Angle = obj.paretoAngles(offsetIndex2);
             pivotAngle = obj.paretoAngles(I(pivotIndex));
             
             if (pivotAngle == offset1Angle ) || (pivotAngle == offset2Angle)
