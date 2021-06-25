@@ -6,14 +6,14 @@ This repository holds Matlab code for the Distance-Based Multi-Objective Point P
 
 The DBMOPP generator in the <code>DBMOPP.m</code> file is the most recent version of the generator, and follows an object-oriented design. 
 
-This substaional new version of the generator, including the integration of hard and soft constraints and additional features, recently acceptanced in IEEE Transactions on Evolutionary Computation
+This is a substantional new version of the generator including the integration of hard and soft constraints and additional features, recently acceptanced in IEEE Transactions on Evolutionary Computation.
 
 Jonathan E. Fieldsend, Tinkle Chugh, Richard Allmendinger, and Kaisa Miettinen. 
 2021. A Visualizable Test Problem Generator for Many-Objective Optimization, 
 IEEE Transactions on Evolutionary Computation, 
 to appear. doi: https://10.1109/TEVC.2021.3084119.
 
-All instance generation functionality is in this version, there are a few "quality of life" methods still still be completed over the next month which allow you to sample Pareto members, and some additionally plotting functions, but the stubs are in the class and details are below, with illustrations of usage.
+All instance generation functionality is in this single file, there are a few "quality of life" methods still still be completed over the next month which allow you to e.g. sample Pareto members, and some additionally plotting functions, but the stubs are in the class and details are below, with illustrations of usage. Details regarding the earlier version of the generator can be found towards the bottom of this page
 
 ## DBMOPP class
 
