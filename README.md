@@ -28,15 +28,15 @@ The public methods of this class are as follows:
 
 <code>plotDominanceLandscape(resolution)</code> Plots the dominance landscape of this problem, by generating by a grid with <code>resolution</code> samples at each dimension.
 
-<code>plotProblemInstance()</code> Plots the different regions set up for this problem instance 
+<code>plotProblemInstance()</code> Plots the different regions set up for this problem instance.
 
 <code>isAParetoSetMember(x, suppressWarning)</code> Returns true if <code>x</code> is a Pareto set member, false otherwise. Obviously you should not be using this method during an optimisation! Pass <code>suppressWarning</code> as true if you don't want to be reminded of this...
 
-<code>getAParetoSetMember()</code> Returns a Pareto decision vector uniformly at random for this instance
+<code>getAParetoSetMember()</code> Returns a Pareto decision vector uniformly at random for this instance.
 
 <code>evaluate(x)</code> evaluates a design vector <code>x</code>
 
-Help information can be access at the commandline for each of the public methods, e.g. the command
+Help information can be accessed at the command line for each of the public methods, e.g. the command
 
 <code>help DBMOPP/evaluate</code>
 
