@@ -89,11 +89,61 @@ Calling <code>my_instance.plotParetoSetMembers()</code> plots which samples on t
  
 If we look at the fitness landscape for objectve 1, by calling 
 ```Matlab
-my_instance.plotLandscapeForSingleObjective(1,500);
+my_instance.plotLandscapeForSingleObjective(1);
 ``` 
-we can see how this is affected both bu the attractors in each region, and the offset applied inside the convex hull of the attractor groupings defining the regions, to induce the partially overlapping Pareto sets. 
+we can see how this is affected both by the attractors in each region, and the offset applied inside the convex hull of the attractor groupings defining the regions, to induce the partially overlapping Pareto sets. 
  
 ![Objective 1 landscape](/assets/images/example_objective1.jpg "Objective 1 landscape")
+
+The <code>evaluate</code> method allows you to utilise the generated instance to assess the quality of a design, it returns the objective vector, and the soft and hard constrain violation values. E.g.
+    
+```Matlab
+x = [0.6 0.4];
+[y, sc, hc] = my_instance.evaluate(x);
+```
+Evaluates the design <code>x</code>. This instance has no constraints (bar box constraints), so the <code>sc</code> and <code>hc</code> values are both zero.
+
+```Matlab
+y
+y =
+
+    0.3218    0.1977    0.5040    0.4860
+sc
+
+sc =
+
+     0
+
+hc
+
+hc =
+
+     0
+ 
+```    
+
+The number of solutions found which are Pareto optimal under the instance configuration can be assessed using the <code>isAParetoSetMember</code> method:
+
+```Matlab
+my_instance.isAParetoSetMember(x,true)
+
+ans =
+
+  logical
+
+   0
+```
+In this case, <code>x</code> is not Pareto optimal (as can also be seen in the earlier plots), a close neighbour is though:
+
+```Matlab
+my_instance.isAParetoSetMember([-0.487,0.4],true)
+
+ans =
+
+  logical
+
+   1
+```
 
 ### Stub methods
 
