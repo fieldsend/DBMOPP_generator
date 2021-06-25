@@ -13,7 +13,7 @@ Jonathan E. Fieldsend, Tinkle Chugh, Richard Allmendinger, and Kaisa Miettinen.
 IEEE Transactions on Evolutionary Computation, 
 to appear. doi: https://10.1109/TEVC.2021.3084119.
 
-All instance generation functionality is in this single file, there are a few "quality of life" methods still still be completed over the next month which allow you to e.g. sample Pareto members, and some additionally plotting functions, but the stubs are in the class and details are below, with illustrations of usage. Details regarding the earlier version of the generator can be found towards the bottom of this page
+All instance generation functionality is in this single file. Note there are a few "quality of life" methods still still be completed over the next month which will allow you to e.g. sample Pareto members, and some additionally plotting functions (the stubs for these are in the class and details are below). Illustrations of usage directly. Details regarding the earlier version of the generator can be found towards the bottom of this page.
 
 ## DBMOPP class
 
@@ -189,4 +189,3 @@ distance_points_problem -- this takes a design vector and a problem instance and
 
 Other .m files are helper/plotter functions.
 
-It is recommended currently that you download and use the Release 1.0.0 (as new features are being added currently so current version should be considered unstable).
