@@ -69,11 +69,15 @@ will display
 First let's create an instance from the generator, this is done with the constructor, which creates a DBMOPP instance based on the arguments. Default values are used when arguments are missing (see documentation in code). An example would be
 
 ```Matlab
-my_instance = DBMOPP(4,2,0,0,5,0,1,0,0,false,false,0)
+my_instance = DBMOPP(4,2,0,0,5,0,1,0,0,false,false,0);
 ```
 This creates <code>my_instance</code> which has 4 objectives, 2 descision variables, 5 disconnected Pareto set regions which have global Pareto set type '1', meaning they are partially intersecting -- the entire Pareto front can be described by fewer than five of the regions, but not one alone.
 
-Calling <code>my_instance.plotProblemInstance()</code> plots a helpful visualisation of the problem as constructed, in this case, 
+Calling 
+```Matlab
+my_instance.plotProblemInstance();
+```
+plots a helpful visualisation of the problem as constructed, in this case, 
  
 ![Constructed problem instance](/assets/images/instance_regions.jpg "Constructed problem instance")
 
@@ -83,7 +87,11 @@ Calling <code>my_instance.plotParetoSetMembers()</code> plots which samples on t
 
 ![Pareto optimal points from grid](/assets/images/instance_pareto.jpg "Pareto optimal points from grid")
  
-If we look at the fitness landscape for objectve 1, by calling <code>my_instance.plotLandscapeForSingleObjective(1,500)</code>, we can see how this is affected both bu the attractors in each region, and the offset applied inside the convex hull of the attractor groupings defining the regions, to induce the partially overlapping Pareto sets. 
+If we look at the fitness landscape for objectve 1, by calling 
+```Matlab
+my_instance.plotLandscapeForSingleObjective(1,500);
+``` 
+we can see how this is affected both bu the attractors in each region, and the offset applied inside the convex hull of the attractor groupings defining the regions, to induce the partially overlapping Pareto sets. 
  
 ![Objective 1 landscape](/assets/images/example_objective1.jpg "Objective 1 landscape")
 
