@@ -4,7 +4,7 @@ Codebase for Distance-based Multi-Objective Point Problem instances.
 
 This repository holds Matlab code for the Distance-Based Multi-Objective Point Problem (DBMOPP) instance genetor. 
 
-The DBMOPP generator in the DBMOPP.m file is the most recent version of the generator, and follows an object-oriented design. 
+The DBMOPP generator in the <code>DBMOPP.m</code> file is the most recent version of the generator, and follows an object-oriented design. 
 
 This substaional new version of the generator, including the integration of hard and soft constraints and additional features, recently acceptanced in IEEE Transactions on Evolutionary Computation
 
