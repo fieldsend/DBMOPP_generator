@@ -366,6 +366,8 @@ classdef DBMOPP < handle
             % x = getAParetoSetMember(obj, suppressWarning)
             % SHOULD NOT BE USED IN OPTIMISATION PROCESS!!
             % Returns a random Pareto set member, uniformly from the Pareto set
+            
+            error('functionality still in development');
             if suppressWarning == false
                 warning('This function should not be called as part of the optimisation process')
             end
