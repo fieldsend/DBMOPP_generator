@@ -369,19 +369,32 @@ classdef DBMOPP < handle
             if suppressWarning == false
                 warning('This function should not be called as part of the optimisation process')
             end
-            error('Functionality not currently implemented in this version');
             % while not a legal point obtained
             % get a random Pareto centre
             
-            % check for degenerate 2D case
+            invalid = true;
+            x = [];
+            while invalid
+                k = irand(obj.numberOfGlobalParetoSets) + obj.numberOfLocalParetoSets;
+                
+                % check for degenerate 2D case
+                if (obj.constraintType == 3) || (obj.constraintType == 7)
+                    % if centre constraint type used, randomly choose an angle, use
+                    % corresponding radii from the Pareto set centre list and
+                    % project and return
             
-            % if centre constraint type used, randomly choose an angle, use
-            % corresponding radii from the Pareto set centre list and
-            % project and return
-            
-            % else, generate random point in circle, and check if in convex
-            % hull
-            
+                else
+                    % else, generate random point in circle, and check if in convex
+                    % hull
+                    r = obj.centreRadii(k) * sqrt(rand());
+                    angle = rand() * 2.0 * pi;
+                    x = obj.centreList(k,:) + [r * cos(angle), r*sin(angle)];
+                end
+                if (obj.isPareto2D(x))
+                   % project to higher number of dimensions if required
+                   invalid = false;
+                end
+            end
         end
         %--
         
@@ -703,6 +716,7 @@ classdef DBMOPP < handle
             obj.placeVertexConstraintLocations();
             obj.placeCentreConstraintLocations();
             obj.placeMoatConstraintLocations();
+            obj.assignDesignDimensionProjection();
             fprintf('set projection vectors');
             fprintf('set rescaling');
         end
@@ -999,9 +1013,31 @@ classdef DBMOPP < handle
             end
         end
         %--
+        function assignDesignDimensionProjection(obj)
+            % if more than two design dimensions in problem, need to assign
+            % the mapping down from this higher space to the 2D version
+            % which will be subsequantly evaluated
+            if obj.numberOfDesignVariables > 2
+                if obj.variableSolutionDensity
+                    difference = randi(obj.numberOfDesignVariables - 1);
+                    mask = randperm(obj.numberOfDesignVariables);
+                    mask = mask(1:difference);
+                else
+                    mask = randperm(obj.numberOfDesignVariables);
+                    mask = mask(1:ceil(obj.numberOfDesignVariables/2));  % select random half of dimension indices
+                end
+                obj.pi1 = zeros(1,obj.numberOfDesignVariables);
+                obj.pi1(1,mask) = 1;
+                obj.pi1Magnitude = norm(obj.pi1)^2;
+                obj.pi2 = ones(1,obj.numberOfDesignVariables);
+                obj.pi2(1,mask) = 0;
+                obj.pi2Magnitude = norm(obj.pi2)^2;
+            end
+        end
+        %--
         function x = get2DVersion(obj,x)
-            if length(x)>2
-                x = [(x*obj.pi1)/obj.pi1Magnitude, (x*obj.pi2)/obj.pi2Magnitude];
+            if length(x) > 2
+                x = [dot(x,obj.pi1)/obj.pi1Magnitude, dot(x,obj.pi2)/obj.pi2Magnitude];
             end
         end
         %--
