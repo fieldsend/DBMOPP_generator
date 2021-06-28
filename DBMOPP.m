@@ -105,7 +105,6 @@ classdef DBMOPP < handle
             % monte_carlo_samples = default 10000
             
             
-            
             if (numberOfObjectives < 1)
                 error('Need numberOfObjectives to be at least 1');
             end
@@ -342,10 +341,7 @@ classdef DBMOPP < handle
             end
             
         end
-        
         %--
-        
-        
         function isPareto = isAParetoSetMember(obj, x, suppressWarning)
             % isPareto = isAParetoSetMember(obj,x,suppressWarning)
             %
@@ -365,8 +361,6 @@ classdef DBMOPP < handle
             x = obj.get2DVersion(x);
             isPareto = obj.isPareto2D(x);
         end
-        
-        
         
         function x = getAParetoSetMember(obj, suppressWarning)
             % x = getAParetoSetMember(obj, suppressWarning)
@@ -417,7 +411,6 @@ classdef DBMOPP < handle
             [objective_vector, soft_constraint_violation, hard_constraint_violation] = obj.evaluate2D(x);
         end
     end
-    
     
     % static helper methods (don't use instance state)
     
@@ -501,7 +494,7 @@ classdef DBMOPP < handle
                 if (obj.constraintType == 3)
                     % need to do an additional check for moat type in case
                     % falls in Pareto set/local front set
-                    if (obj.inCOnvexHullOfAtrractorRegion(x))
+                    if (obj.inConvexHullOfAttractorRegion(x))
                         hard_constraint_violation = false;
                         objective_vector = obj.getObjectives(x); % can do this quicker as know region, refactor
                     end
@@ -516,7 +509,7 @@ classdef DBMOPP < handle
                 if (obj.constraintType == 7)
                     % need to do an additional check for moat type in case
                     % falls in Pareto set/local front set
-                    if (obj.inCOnvexHullOfAtrractorRegion(x))
+                    if (obj.inConvexHullOfAttractorRegion(x))
                         soft_constraint_violation = 0;
                         objective_vector = obj.getObjectives(x); % can do this quicker as know region, refactor
                     end
@@ -541,7 +534,7 @@ classdef DBMOPP < handle
             if obj.getHardConstraintViolation(x)
                 isPareto = false;
             end
-            if obj.getSoftConstraintViolation(x) >0
+            if obj.getSoftConstraintViolation(x) > 0
                 isPareto = false;
             end
         end
