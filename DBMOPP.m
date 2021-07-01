@@ -220,6 +220,7 @@ classdef DBMOPP < handle
             surfc(xy,xy,Z');
             shading flat
             view(2)
+            axis square
         end
         %--
         
@@ -362,12 +363,12 @@ classdef DBMOPP < handle
             isPareto = obj.isPareto2D(x);
         end
         
-        function x = getAParetoSetMember(obj, suppressWarning)
-            % x = getAParetoSetMember(obj, suppressWarning)
+        function [x, corresponding2Dpoint] = getAParetoSetMember(obj, suppressWarning)
+            % [x, corresponding2Dpoint] = getAParetoSetMember(obj, suppressWarning)
             % SHOULD NOT BE USED IN OPTIMISATION PROCESS!!
-            % Returns a random Pareto set member, uniformly from the Pareto set
+            % Returns a random Pareto set member, uniformly from the Pareto
+            % set, and the point in 2D it maps to
             
-            error('functionality still in development');
             if suppressWarning == false
                 warning('This function should not be called as part of the optimisation process')
             end
@@ -377,25 +378,35 @@ classdef DBMOPP < handle
             invalid = true;
             x = [];
             while invalid
-                k = irand(obj.numberOfGlobalParetoSets) + obj.numberOfLocalParetoSets;
+                k = randi(obj.numberOfGlobalParetoSets) + obj.numberOfLocalParetoSets;
                 
                 % check for degenerate 2D case
-                if (obj.constraintType == 3) || (obj.constraintType == 7)
+                if (obj.constraintType == 2) || (obj.constraintType == 6)
                     % if centre constraint type used, randomly choose an angle, use
                     % corresponding radii from the Pareto set centre list and
                     % project and return
-            
+                    angle = rand() * 2.0 * pi;
+                    x = obj.centreList(k,:) + [obj.centreRadii(k) * cos(angle), obj.centreRadii(k)*sin(angle)];
+                    invalid = false;
                 else
-                    % else, generate random point in circle, and check if in convex
-                    % hull
+                    % else, generate random point in circle, 
                     r = obj.centreRadii(k) * sqrt(rand());
                     angle = rand() * 2.0 * pi;
                     x = obj.centreList(k,:) + [r * cos(angle), r*sin(angle)];
+                    if (obj.isPareto2D(x)) % check if sample is Pareto optimal
+                        invalid = false;
+                    end
                 end
-                if (obj.isPareto2D(x))
-                   % project to higher number of dimensions if required
-                   invalid = false;
-                end
+            end
+            % project to higher number of dimensions if required
+            if obj.numberOfDesignVariables > 2
+                % design space is large than 2D, so need to randomly select
+                % a location in this higher dimensional space which maps to
+                % this Pareto optimal location
+                corresponding2Dpoint = x;
+                x = get_vectors_mapping_to_location(x,obj.pi1,obj.pi1Magnitude,obj.pi2,obj.pi2Magnitude,obj.numberOfDesignVariables);
+            else
+                corresponding2Dpoint = x;
             end
         end
         %--
@@ -468,6 +479,25 @@ classdef DBMOPP < handle
                 end
             end
         end
+        % INPUT
+        % centres = matrix of regions centres, n by 2
+        % radii = vector of radii, 1 by n
+        % x = point in Cartesian space, 1 by 2
+        % OUTPUT
+        % inRegion = true if x is located in any of the circular regions
+        %       defined by centres and radii, false otherwise
+        % d = array of each of the Euclidean distances from x to each of
+        %       the centres
+        function [inRegion, d] = inRegionExcludingBoundary(centres,radii,x)
+            inRegion = false;
+            d = [];
+            if (isempty(centres)==false)
+                d = DBMOPP.euclideanDistance(centres,x);
+                if sum(d < radii) > 0
+                    inRegion = true;
+                end
+            end
+        end
         %--
         % INPUT
         % x = 2D point to check
@@ -493,6 +523,99 @@ classdef DBMOPP < handle
                 t = true;
             end
         end
+        
+        function z = get_vectors_mapping_to_location(x,pi1,pi1_mag,pi2,pi2_mag,dim)
+            
+            z = zeros(1,dim);
+            z = process_dimensions(z,x(1),pi1,pi1_mag);
+            z = process_dimensions(z,x(2),pi2,pi2_mag);
+        end
+        
+        function z = process_dimensions(z,x,pi,pi_mag)
+            if pi_mag == 1
+                % special case
+                z(pi) = x;
+            else
+                % map value from [-1 +1] to [0 1]
+                x = ((x+1)/2)*pi_mag;
+                s = unit_hypercube_simplex_sample(pi_mag,x);
+                % map s back to [-1 +1]
+                s = (s*2)-1;
+                z(pi) = s;
+            end
+        end
+        
+        
+        function X = unit_hypercube_simplex_sample(dim,sum_value,number_of_points)
+            
+            % function X = unit_hypercube_simplex_sample(number_of_points, dim, sum_value)
+            %
+            % INPUTS
+            %
+            % dim = dimensions
+            % sum_value = value that each vector should sum to
+            % number_of_points = number of dim-dimensional points to sample (output in
+            %       X)
+            %
+            % OUTPUT
+            %
+            % X = number_of_points by dim matrix of uniform samples in unit cube from
+            %       simplex which sums to sum_value
+            %
+            % Returns X which contains uniform samples from the simplex summing to
+            % sum_value, which lies in the unit hypercube
+            
+            
+            if dim < sum_value
+                error('It is impossible to attain sum_value, given variables are in unit range. The sum value given is greater than the number of dimensions');
+            end
+            if sum_value < 0
+                error('Cannot have negative sum value, as variables are in unit range ')
+            end
+            if exist('number_of_points','var')==false
+                number_of_points = 1;
+            end
+            if number_of_points < 1
+                error('must require a positive number of points')
+            end
+            
+            X = exprnd(ones(number_of_points,dim));
+            S = sum(X,2);
+            if sum_value == 1
+                X = X./repmat(S,1,dim);
+            elseif sum_value < 1
+                X = (X./repmat(S,1,dim))*sum_value;
+            else
+                if sum_value < dim/2
+                    % rejection sampling
+                    X = recalibrate(X,number_of_points,S,sum_value,dim);
+                elseif sum_value < dim-1
+                    % flipped around dim/2 face for rejection sampling
+                    X = 1-recalibrate(X,number_of_points,S,dim-sum_value,dim);
+                else
+                    % special case when sum_value >= dim-1, can just
+                    % flip round the scaled unit simplex -- no rejection sampling
+                    % needed :)
+                    X = (X./repmat(S,1,dim))*(dim-sum_value);
+                    X = 1-X;
+                end
+            end
+            
+        end
+        
+        function X = recalibrate(Z,number_of_points,S,sum_value,dim)
+            X = (Z./repmat(S,1,dim))*sum_value;
+            
+            for i=1:number_of_points
+                while (max(X(i,:)) > 1) % rejection sampling -- keep sampling until the constraints satisfied
+                    Z(i,:) = exprnd(ones(1,dim));
+                    S(i) = sum(Z(i,:));
+                    X(i,:) = Z(i,:)/S(i) * sum_value;
+                end
+            end
+            
+        end
+
     end
     
     
@@ -811,7 +934,6 @@ classdef DBMOPP < handle
             fprintf('Assigning any vertex soft/hard constraint regions\n');
             if (obj.constraintType == 1) || (obj.constraintType == 4)
                 % hard or soft vertex
-                r = min(obj.centreRadii); % get radius of Pareto Regions -- could store in state to save this calculation?
                 % set penalty radius to be no more than half of the raddius
                 % of the region associated with an attractor
                 penalityRadius = rand(1,1)/2;
@@ -990,7 +1112,7 @@ classdef DBMOPP < handle
         end
         %--
         function h = getHardConstraintViolation(obj,x)
-            inHardConstraintRegion = DBMOPP.inRegion(obj.hardConstraintCentres, obj.hardConstraintRadii, x);
+            inHardConstraintRegion = DBMOPP.inRegionExcludingBoundary(obj.hardConstraintCentres, obj.hardConstraintRadii, x);
             if inHardConstraintRegion
                 h=1;
             else
@@ -1002,7 +1124,7 @@ classdef DBMOPP < handle
             [inSoftConstraintRegion, d] = DBMOPP.inRegion(obj.softConstraintCentres, obj.softConstraintRadii, x);
             
             if inSoftConstraintRegion
-                k = sum(d <= obj.softConstraintRadii);
+                k = sum(d < obj.softConstraintRadii);
                 if (k > 0)
                     c = d - obj.softConstraintRadii; % get a measure of how far away from the boundary of the region a point is
                     c = c.*k; % only count those *inside* the constraint region
@@ -1028,12 +1150,12 @@ classdef DBMOPP < handle
                     mask = randperm(obj.numberOfDesignVariables);
                     mask = mask(1:ceil(obj.numberOfDesignVariables/2));  % select random half of dimension indices
                 end
-                obj.pi1 = zeros(1,obj.numberOfDesignVariables);
-                obj.pi1(1,mask) = 1;
-                obj.pi1Magnitude = norm(obj.pi1)^2;
-                obj.pi2 = ones(1,obj.numberOfDesignVariables);
-                obj.pi2(1,mask) = 0;
-                obj.pi2Magnitude = norm(obj.pi2)^2;
+                obj.pi1 = false(1,obj.numberOfDesignVariables);
+                obj.pi1(1,mask) = true;
+                obj.pi1Magnitude = sum(obj.pi1); % effectively norm(obj.pi1)^2; -- but quicker, and returns integer needed
+                obj.pi2 = true(1,obj.numberOfDesignVariables);
+                obj.pi2(1,mask) = false;
+                obj.pi2Magnitude = sum(obj.pi2);
             end
         end
         %--
@@ -1079,14 +1201,21 @@ classdef DBMOPP < handle
             inParetoRegion = false;
             inHull = false;
             d = DBMOPP.euclideanDistance(obj.centreList,x);
-            I = find(d < obj.centreRadii);
-            % check if inside any of the circles defining arractor regions
+            I = find(d <= obj.centreRadii+eps);
+            % check if inside or on any of the circles defining arractor regions
             index = -1;
             if isempty(I)==false
                 % check if in Global Pareto region rather than e.g. local set
                 if (I(1) > obj.numberOfLocalParetoSets) && (I(1) <= obj.numberOfLocalParetoSets + obj.numberOfGlobalParetoSets)
-                    % 'inside radius of global attractor region, need to check if in conv hull'
-                    if inpolygon(x(1),x(2),obj.attractorRegions{I(1)}.locations(obj.attractorRegions{I(1)}.convhull,1), obj.attractorRegions{I(1)}.locations(obj.attractorRegions{I(1)}.convhull,2))
+                    if (obj.constraintType == 2) || (obj.constraintType == 6)
+                        % special case where Pareto set lies on the
+                        % coundary of the circle due to the constraint
+                        % covering the circle
+                        if (abs(d(I(1))-obj.centreRadii(I(1))) < 1e4*eps(min(abs(d(I(1))),abs(obj.centreRadii(I(1)))))) % deal with rounding error
+                            inHull = true;
+                        end
+                    elseif inpolygon(x(1),x(2),obj.attractorRegions{I(1)}.locations(obj.attractorRegions{I(1)}.convhull,1), obj.attractorRegions{I(1)}.locations(obj.attractorRegions{I(1)}.convhull,2))
+                        % 'inside radius of global attractor region, need to check if in conv hull'
                         inHull = true;
                     end
                 end
@@ -1094,6 +1223,10 @@ classdef DBMOPP < handle
             
             if obj.globalParetoSetType == 0 % identical performance
                 inParetoRegion = inHull;
+                inHull = false;
+            elseif (obj.constraintType == 2) || (obj.constraintType == 6)
+                inParetoRegion = inHull;
+                inHull = false;
             else
                 if inHull
                     index = I(1);
