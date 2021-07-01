@@ -32,7 +32,7 @@ The public methods of this class are as follows:
 
 <code>isAParetoSetMember(x, suppressWarning)</code> Returns true if <code>x</code> is a Pareto set member, false otherwise. Obviously you should not be using this method during an optimisation! Pass <code>suppressWarning</code> as true if you don't want to be reminded of this...
 
-<code>getAParetoSetMember()</code> Returns a Pareto decision vector uniformly at random for this instance.
+<code>getAParetoSetMember()</code> Returns a Pareto decision vector uniformly at random for this instance. It also returns the corresonding 2D projection for the design location.
 
 <code>evaluate(x)</code> evaluates a design vector <code>x</code>
 
@@ -159,8 +159,6 @@ This is a 10-dimensional problem, with three competing objectives. 30% of the de
 The current methods are stubs and will throw errors, they will be filled in shortly
 
 <code>plotDominanceLandscape</code> -- will plot the dominance landscape of an instance (exists in the older generator, just need to port for the OO version)
-
-<code>getAParetoSetMember</code> -- will return, uniformly at random, a Pareto set member
 
 ## Older GECCO 2019 generator
 
