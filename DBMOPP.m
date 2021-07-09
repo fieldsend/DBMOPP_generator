@@ -82,7 +82,7 @@ classdef DBMOPP < handle
             % numberOfLocalParetoSets = number of local Pareto sets, minimum 0
             % numberOfDominanceResistanceRegions = number of dominance
             %     resistance regions, minimum 0
-            % numberOfGlobalParetoSets = number of Pareto sets (disconnected), 
+            % numberOfGlobalParetoSets = number of Pareto sets (disconnected),
             %     minimum 1
             % proportionOfConstrainedSpaceIfChecker = if extended checker constraint
             %     type is used, proportion of 2D design space to be of this
@@ -217,11 +217,12 @@ classdef DBMOPP < handle
                 end
             end
             figure;
-            surfc(xy,xy,Z');
-            shading flat
+            surfc(xy,xy,Z'); %the x-coordinates of the vertices corresponding to column indices of Z and the y-coordinates corresponding to row indices of Z, so transposing
             view(2)
+            shading flat
             axis square
         end
+        
         %--
         
         function plotParetoSetMembers(obj,resolution)
@@ -261,18 +262,63 @@ classdef DBMOPP < handle
         end
         
         %--
-        function plotDominanceLandscape(obj,resolution)
-            % plotDominanceLandscape(obj,resolution)
+        
+        function [neutral_areas, dominated, Y, destination, dominating_neighbours, offset] = plotDominanceLandscape(obj,resolution,moore_neighbourhood)
+            % [neutral_areas, dominated, Y, destination, dominating_neighbours, offset] = plotDominanceLandscape(obj,resolution,moore_neighbourhood)
             %
-            % INPUT
+            % INPUTS
             %
+            % index = index of which objective to plot
             % resolution = mesh size (number of cells on each dimension) to use
-            %         when plotting the landscape
+            %         when plotting the objective response
+            % moore_neighbourhood = type of neighbourhood used, if true then
+            %         Moore neighbourhood (default), if false Von Neumann
+            %         nieghbourhood
             %
-            % Plots the instance of this problem
-            error('Functionality currently not implemented -- please check the repo often as should be in soon!');
+            % OUTPUTS
+            %
+            % neural_areas = resolution by resolution matrix. contigious
+            %       dominance neutral araes have same positive integer value. 
+            %       dominated located have a value of -1
+            % dominated = Boolean resolution by resolution matrix. true is
+            %       corresponding location is dominated.
+            % Y = number of objectives by resolution by resolution matrix
+            %       holding objective vector for each mesh location
+            % destination = resolution by resolution cell matrix, holding
+            %       the list of distinct neutral areas reached by all
+            %       downhill dominance walks commences at the cell (see the
+            %       neutral_areas matrix for mapping)
+            % offset = negihbourhood mapping matrix 
+            %
+            % plots the single objective landscape of the obj instance for the
+            % 'index' objective. The optional argument resolution sets the grid
+            % on each access (default 500)
+            %
+            if exist('resolution','var')==false
+                resolution = 500;
+            end
+            if exist('moore_neighbourhood','var')==false
+                moore_neighbourhood = true;
+            end
+            if resolution < 1
+                error('Cannot grid the space with a resolution less than 1');
+            end
+            
+            xy = linspace(-1,1,resolution);
+            Y = zeros(obj.numberOfObjectives,resolution,resolution);
+            % evaluate alll locations
+            for i=1:resolution
+                for j=1:resolution
+                    [objective_vector] = obj.evaluate2D([xy(i), xy(j)]);
+                    Y(:,i,j) = objective_vector;
+                end
+            end
+            [neutral_areas, dominated, destination, dominating_neighbours, offset] = DBMOPP.plotDominanceLandscapeFromMatrix(Y,xy,xy,moore_neighbourhood);
         end
+        
+        
         %--
+        
         function plotProblemInstance(obj)
             % plotProblemInstance(obj)
             %
@@ -389,7 +435,7 @@ classdef DBMOPP < handle
                     x = obj.centreList(k,:) + [obj.centreRadii(k) * cos(angle), obj.centreRadii(k)*sin(angle)];
                     invalid = false;
                 else
-                    % else, generate random point in circle, 
+                    % else, generate random point in circle,
                     r = obj.centreRadii(k) * sqrt(rand());
                     angle = rand() * 2.0 * pi;
                     x = obj.centreList(k,:) + [r * cos(angle), r*sin(angle)];
@@ -404,7 +450,7 @@ classdef DBMOPP < handle
                 % a location in this higher dimensional space which maps to
                 % this Pareto optimal location
                 corresponding2Dpoint = x;
-                x = get_vectors_mapping_to_location(x,obj.pi1,obj.pi1Magnitude,obj.pi2,obj.pi2Magnitude,obj.numberOfDesignVariables);
+                x = DBMOPP.get_vectors_mapping_to_location(x,obj.pi1,obj.pi1Magnitude,obj.pi2,obj.pi2Magnitude,obj.numberOfDesignVariables);
             else
                 corresponding2Dpoint = x;
             end
@@ -436,11 +482,130 @@ classdef DBMOPP < handle
             x = obj.get2DVersion(x);
             [objective_vector, soft_constraint_violation, hard_constraint_violation] = obj.evaluate2D(x);
         end
+        
+        
     end
     
     % static helper methods (don't use instance state)
     
     methods(Static)
+        function [neutral_areas, dominated, destination, dominating_neighbours, offset] = plotDominanceLandscapeFromMatrix(Y,x,y,moore_neighbourhood)
+            % [neutral_areas, dominated, destination, dominating_neighbours, offset] = plotDominanceLandscapeFromMatrix(Y,x,y,moore_neighbourhood)
+            %
+            % INPUTS
+            %
+            % Y = number of objectives by resolution by resolution matrix
+            %       holding objective vector for each mesh location
+            % x = resolution by 1 array of ordered x locations of samples
+            %       (e.g. x = linspace(-1, 1, resolution) )
+            % y = resolution by 1 array of ordered x locations of samples
+            %       (e.g. y = linspace(-1, 1, resolution) )
+            % moore_neighbourhood = type of neighbourhood used, if true then
+            %         Moore neighbourhood, if false Von Neumann
+            %         nieghbourhood used
+            %
+            % OUTPUTS
+            %
+            % neural_areas = resolution by resolution matrix. contigious
+            %       dominance neutral araes have same positive integer value. 
+            %       dominated located have a value of -1
+            % dominated = Boolean resolution by resolution matrix. true is
+            %       corresponding location is dominated.
+            % destination = resolution by resolution cell matrix, holding
+            %       the list of distinct neutral areas reached by all
+            %       downhill dominance walks commences at the cell (see the
+            %       neutral_areas matrix for mapping)
+            % offset = neighbourhood mapping matrix 
+            %
+            %
+            [numObjectives,resolution,r] = size(Y);  
+            if (resolution ~= r)
+                error('Second and third dimension of Y must be the same size');
+            end
+            if (numObjectives < 2)
+                error('Must have at least two objectives')
+            end
+            if length(x) ~= resolution
+               error('must be as many x grid labels as elements'); 
+            end
+            if length(y) ~= resolution
+               error('must be as many y grid labels as elements'); 
+            end
+            
+            if moore_neighbourhood == true
+                dominating_neighbours = false(resolution,resolution,8);
+                neutral_neighbours = false(resolution,resolution,8);
+            else
+                dominating_neighbours = false(resolution,resolution,4);
+                neutral_neighbours = false(resolution,resolution,4);
+            end
+            dominated = true(resolution,resolution);
+            
+            % array holding neighbourhood directions
+            offset = [1 0; -1 0; 0 1; 0 -1; 1 1; 1 -1; -1 1; -1 -1];
+            % determine those which are not dominated
+            for i=1:resolution
+                for j=1:resolution
+                    [dominating_neighbours(i,j,:), neutral_neighbours(i,j,:), dominated(i,j)] = DBMOPP.identify_dominating_neighbours(Y,i,j,resolution,moore_neighbourhood,offset);
+                end
+            end
+            % dominating_neighbours now holds location of neighbours which
+            % dominate, and dominated holds whether a particular location
+            % is dominated by any nieghbour.
+            neutral_areas = ones(resolution,resolution) * -1;
+            neutral_index = 1;
+            % label contiguous neutral areas
+            for i=1:resolution
+                for j=1:resolution
+                    % if not-dominated, and not yet assigned to a neutral
+                    % area
+                    if (dominated(i,j) == false) && (neutral_areas(i,j) < 0)
+                        neutral_areas = DBMOPP.identify_neutral_area_members(i,j,neutral_areas,neutral_index,dominated,neutral_neighbours,moore_neighbourhood,offset);
+                        neutral_index = neutral_index + 1;
+                    end
+                end
+            end
+            % identify basins of attraction
+            basins = ones(resolution,resolution)*-1;
+            basins(neutral_areas>0) = 0;
+            processed = false(resolution,resolution);
+            number_distinct_neutral_regions = max(max(neutral_areas));
+            destination = cell(resolution,resolution);
+            for i=1:resolution
+                for j=1:resolution
+                    if ~processed(i,j) % if not yet processed
+                        [processed,destination,~] = DBMOPP.update_destinations(i,j,processed,destination,dominating_neighbours,neutral_areas,offset);
+                    end
+                end
+            end
+            % now fill value in basins
+            for i=1:resolution
+                for j=1:resolution
+                    if (neutral_areas(i,j) > 0)
+                        basins(i,j) = 0;
+                    else
+                        if length(destination{i,j})==1
+                            % put between 0.25 and 0.75, graded by which basin it leads to
+                            basins(i,j) = 0.25 + destination{i,j}/( 2*number_distinct_neutral_regions );
+                        else
+                            basins(i,j) = 1;
+                        end
+                    end
+                end
+            end
+            
+            % in basins all neutral areas have value 1
+            % all locations leading to multiple local optima have value 1
+            % all locations leading to the same single optima have the same
+            % value
+            figure;
+            imagesc(x,y,basins');
+            colormap(gray)
+            set(gca,'YDir','normal')
+            view(2)
+            axis square
+        end
+        
         % INPUT
         % X1 is a matrix or array, size n x number of design variables
         % x2 is a array, size 1 x number of design variables
@@ -498,6 +663,58 @@ classdef DBMOPP < handle
                 end
             end
         end
+        
+        function  plotDominatedWalks(x_index,y_index,dominating_neighbours, offset, neutral_areas)
+            [n1,n2,~] = size(dominating_neighbours);
+            if (n1~=n2)
+                error('input does not match expected, should be a square grid');
+            end
+            if (x_index > n1) || (y_index > n1)
+                error('cannot use an index larger than the grid size');
+            end
+            paths = ones(n1,n2);
+            paths(x_index,y_index) = 0; % highlight starting point
+            paths = DBMOPP.recursive_fill_paths(paths,x_index,y_index,dominating_neighbours, offset, false(n1,n2), neutral_areas);
+            
+            xy = linspace(-1,1,n1);
+            
+            figure;
+            imagesc(xy,xy,paths');
+            colormap(gray)
+            set(gca,'YDir','normal')
+            view(2)
+            axis square
+        end
+    end
+    
+    methods(Static,Hidden)
+        function [processed,destination,destination_list] = update_destinations(i,j,processed,destination,dominating_neighbours,neutral_areas,offset)
+            destination_list = [];
+            if sum(dominating_neighbours(i,j,:)) > 0 % the cell at i and j has dominating neighbours
+                for k = 1 : length(dominating_neighbours(i,j,:))
+                    if dominating_neighbours(i,j,k) % query each dominating neighbour
+                        if processed(i + offset(k,1),j + offset(k,2)) % if already processed
+                            % already know where neighbour leads, so
+                            % update destination list with neutral areas
+                            % led to by all dominating walks from this
+                            % neighbouring dominating location
+                            individual_destination_list = destination{i + offset(k,1), j + offset(k,2)};
+                        else
+                            % neighbour k is dominating, so take all paths downhill
+                            [processed,destination,individual_destination_list] = DBMOPP.update_destinations(i + offset(k,1),j + offset(k,2),processed,destination,dominating_neighbours,neutral_areas,offset);
+                        end
+                        destination_list = unique([destination_list individual_destination_list]);
+                    end
+                end
+                processed(i,j) = true;
+                destination{i,j} = destination_list; % record all neutral areas reachable from this point
+            else % no dominating neighbours, so at a dominance neutral point
+                processed(i,j) = true;
+                destination_list = neutral_areas(i,j); % use value at this location, as reached a neutral point
+                destination{i,j} = destination_list;
+            end
+        end
+        
         %--
         % INPUT
         % x = 2D point to check
@@ -527,8 +744,8 @@ classdef DBMOPP < handle
         function z = get_vectors_mapping_to_location(x,pi1,pi1_mag,pi2,pi2_mag,dim)
             
             z = zeros(1,dim);
-            z = process_dimensions(z,x(1),pi1,pi1_mag);
-            z = process_dimensions(z,x(2),pi2,pi2_mag);
+            z = DBMOPP.process_dimensions(z,x(1),pi1,pi1_mag);
+            z = DBMOPP.process_dimensions(z,x(2),pi2,pi2_mag);
         end
         
         function z = process_dimensions(z,x,pi,pi_mag)
@@ -538,13 +755,81 @@ classdef DBMOPP < handle
             else
                 % map value from [-1 +1] to [0 1]
                 x = ((x+1)/2)*pi_mag;
-                s = unit_hypercube_simplex_sample(pi_mag,x);
+                s = DBMOPP.unit_hypercube_simplex_sample(pi_mag,x);
                 % map s back to [-1 +1]
                 s = (s*2)-1;
                 z(pi) = s;
             end
         end
         
+        function [paths, path_taken] = recursive_fill_paths(paths, i, j, dominating_neighbours, offset, path_taken, neutral_areas)
+            if sum(dominating_neighbours(i,j,:)) > 0 % the cell at i and j has dominating neighbours
+                for k = 1 : length(dominating_neighbours(i,j,:))
+                    if dominating_neighbours(i,j,k) % query each dominating neighbour
+                        if ~path_taken(i+offset(k,1),j+offset(k,2)) % if
+                            % at a neighbour which dominates the current
+                            % point, which hasn't yet been passed through,
+                            % so colour the cell, set as seen and process
+                            % all of its dominating neighbour paths
+                            paths(i+offset(k,1),j+offset(k,2)) = 0.5;
+                            path_taken(i+offset(k,1),j+offset(k,2)) = true;
+                            [paths, path_taken] = DBMOPP.recursive_fill_paths(paths,i+offset(k,1),j+offset(k,2),dominating_neighbours, offset,path_taken, neutral_areas);
+                        end
+                    end
+                end
+            end
+        end
+        
+        function [dominating_neighbours, neutral_neighbours, dominated] = identify_dominating_neighbours(Y,i,j,resolution,moore_neighbourhood,offset)
+            if moore_neighbourhood
+                n = 8;
+            else
+                n = 4;
+            end
+            dominating_neighbours = false(n,1);
+            neutral_neighbours = false(n,1);
+            
+            for k=1:n
+                if (i + offset(k,1) > 0) && (i + offset(k,1) <= resolution) && (j + offset(k,2) > 0) && (j + offset(k,2) <= resolution)
+                    [dominating_neighbours(k),neutral_neighbours(k)] = DBMOPP.vector_is_dominated_or_neutral(Y(:,i,j),Y(:,i + offset(k,1),j + offset(k,2)));
+                end
+            end
+            dominated = any(dominating_neighbours);
+        end
+        
+        function neutral_areas = identify_neutral_area_members(i,j,neutral_areas,neutral_index,dominated,neutral_neighbours,moore_neighbourhood,offset)
+            % the location at i, j is not dominated, so want to identify
+            % all members of contiguous non-dominated area and label
+            % accordingly.
+            neutral_areas(i,j) = neutral_index;
+            for k = 1:length(neutral_neighbours(i,j,:))
+                if (neutral_neighbours(i,j,k)) % if neighbour is neutral with respect to current location
+                    if neutral_areas(i + offset(k,1), j + offset(k,2)) < 0 % if neighbour not already labelled
+                        if (dominated(i + offset(k,1), j + offset(k,2)) == false) % and is not dominated
+                            % recursively go through
+                            neutral_areas = DBMOPP.identify_neutral_area_members(i + offset(k,1), j + offset(k,2),neutral_areas,neutral_index,dominated,neutral_neighbours,moore_neighbourhood,offset);
+                        end
+                    end
+                end
+            end
+            
+        end
+        
+        function d = vector_dominates(y1,y2)
+            d = (sum(y1 <= y2) == length(y1)) && (sum(y1 < y2) > 0);
+        end
+        
+        function [d, n] = vector_is_dominated_or_neutral(y1,y2)
+            % d is true if y2 dominates y1
+            % n is true if y1 and y2 are incomparable under the dominates
+            % relation
+            d = DBMOPP.vector_dominates(y2,y1);
+            if d == false
+                n = ~DBMOPP.vector_dominates(y1,y2);
+            else
+                n = false;
+            end
+        end
         
         function X = unit_hypercube_simplex_sample(dim,sum_value,number_of_points)
             
@@ -588,10 +873,10 @@ classdef DBMOPP < handle
             else
                 if sum_value < dim/2
                     % rejection sampling
-                    X = recalibrate(X,number_of_points,S,sum_value,dim);
+                    X = DBMOPP.recalibrate(X,number_of_points,S,sum_value,dim);
                 elseif sum_value < dim-1
                     % flipped around dim/2 face for rejection sampling
-                    X = 1-recalibrate(X,number_of_points,S,dim-sum_value,dim);
+                    X = 1-DBMOPP.recalibrate(X,number_of_points,S,dim-sum_value,dim);
                 else
                     % special case when sum_value >= dim-1, can just
                     % flip round the scaled unit simplex -- no rejection sampling
@@ -615,9 +900,8 @@ classdef DBMOPP < handle
             end
             
         end
-
+        
     end
-    
     
     % private methods affecting state of object, largely used in the
     % initialisation of a DBMOPP instance
@@ -814,6 +1098,7 @@ classdef DBMOPP < handle
                 obj.attractorRegions{i}.locations = locations(I(1:num_to_include),:);
                 obj.attractorRegions{i}.objectiveIndices = I(1:num_to_include);
                 obj.attractorRegions{i}.radius = obj.centreRadii(i);
+                obj.attractorRegions{i}.convhull = convhull(locations(:,1),locations(:,2));
                 for k = 1:num_to_include
                     obj.attractorsList{I(k)}.locations = [obj.attractorsList{I(k)}.locations; locations(I(k),:)];
                 end
@@ -842,8 +1127,8 @@ classdef DBMOPP < handle
             obj.placeCentreConstraintLocations();
             obj.placeMoatConstraintLocations();
             obj.assignDesignDimensionProjection();
-            fprintf('set projection vectors');
-            fprintf('set rescaling');
+            fprintf('set projection vectors\n');
+            fprintf('set rescaling\n');
         end
         %--
         function placeDisconnectedParetoElements(obj)
