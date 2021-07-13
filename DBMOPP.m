@@ -263,7 +263,7 @@ classdef DBMOPP < handle
         
         %--
         
-        function [neutral_areas, dominated, Y, destination, dominating_neighbours, offset] = plotDominanceLandscape(obj,resolution,moore_neighbourhood)
+        function [neutral_areas, dominated, Y, destination, dominating_neighbours, offset, basins] = plotDominanceLandscape(obj,resolution,moore_neighbourhood)
             % [neutral_areas, dominated, Y, destination, dominating_neighbours, offset] = plotDominanceLandscape(obj,resolution,moore_neighbourhood)
             %
             % INPUTS
@@ -289,6 +289,15 @@ classdef DBMOPP < handle
             %       downhill dominance walks commences at the cell (see the
             %       neutral_areas matrix for mapping)
             % offset = negihbourhood mapping matrix 
+            % basins = matrix of basin memberships (resolution by 
+            %       resolution). A value of 0 at basins(i,j) denotes the
+            %       corresponding location is dominance neutral. A value of
+            %       1 denotes that dominance paths rooted at the cell lead
+            %       to more than one distinct neutral region. A value
+            %       between 0.25 and 0.75 denotes that all dominance paths
+            %       starting from this location end in the same dominance
+            %       neutral regions -- all members of the same basin having
+            %       the same value in this range.
             %
             % plots the single objective landscape of the obj instance for the
             % 'index' objective. The optional argument resolution sets the grid
@@ -313,7 +322,7 @@ classdef DBMOPP < handle
                     Y(:,i,j) = objective_vector;
                 end
             end
-            [neutral_areas, dominated, destination, dominating_neighbours, offset] = DBMOPP.plotDominanceLandscapeFromMatrix(Y,xy,xy,moore_neighbourhood);
+            [neutral_areas, dominated, destination, dominating_neighbours, offset, basins] = DBMOPP.plotDominanceLandscapeFromMatrix(Y,xy,xy,moore_neighbourhood);
         end
         
         
@@ -489,7 +498,7 @@ classdef DBMOPP < handle
     % static helper methods (don't use instance state)
     
     methods(Static)
-        function [neutral_areas, dominated, destination, dominating_neighbours, offset] = plotDominanceLandscapeFromMatrix(Y,x,y,moore_neighbourhood)
+        function [neutral_areas, dominated, destination, dominating_neighbours, offset, basins] = plotDominanceLandscapeFromMatrix(Y,x,y,moore_neighbourhood)
             % [neutral_areas, dominated, destination, dominating_neighbours, offset] = plotDominanceLandscapeFromMatrix(Y,x,y,moore_neighbourhood)
             %
             % INPUTS
@@ -516,7 +525,15 @@ classdef DBMOPP < handle
             %       downhill dominance walks commences at the cell (see the
             %       neutral_areas matrix for mapping)
             % offset = neighbourhood mapping matrix 
-            %
+            % basins = matrix of basin memberships (resolution by 
+            %       resolution). A value of 0 at basins(i,j) denotes the
+            %       corresponding location is dominance neutral. A value of
+            %       1 denotes that dominance paths rooted at the cell lead
+            %       to more than one distinct neutral region. A value
+            %       between 0.25 and 0.75 denotes that all dominance paths
+            %       starting from this location end in the same dominance
+            %       neutral regions -- all members of the same basin having
+            %       the same value in this range.
             %
             [numObjectives,resolution,r] = size(Y);  
             if (resolution ~= r)
