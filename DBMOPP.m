@@ -535,6 +535,58 @@ classdef DBMOPP < handle
             %       neutral regions -- all members of the same basin having
             %       the same value in this range.
             %
+            [basins, neutral_areas, dominated, destination, dominating_neighbours, offset] = getDominanceLandscapeBasinsFromMatrix(Y,x,y,moore_neighbourhood);
+            
+            % in basins all neutral areas have value 1
+            % all locations leading to multiple local optima have value 1
+            % all locations leading to the same single optima have the same
+            % value
+            figure;
+            imagesc(x,y,basins');
+            colormap(gray)
+            set(gca,'YDir','normal')
+            view(2)
+            axis square
+        end
+        
+        function [basins, neutral_areas, dominated, destination, dominating_neighbours, offset] = getDominanceLandscapeBasinsFromMatrix(Y,x,y,moore_neighbourhood)
+            % [basins, neutral_areas, dominated, destination, dominating_neighbours, offset] = getDominanceLandscapeBasinsFromMatrix(Y,x,y,moore_neighbourhood)
+            %
+            % INPUTS
+            %
+            % Y = number of objectives by resolution by resolution matrix
+            %       holding objective vector for each mesh location
+            % x = resolution by 1 array of ordered x locations of samples
+            %       (e.g. x = linspace(-1, 1, resolution) )
+            % y = resolution by 1 array of ordered x locations of samples
+            %       (e.g. y = linspace(-1, 1, resolution) )
+            % moore_neighbourhood = type of neighbourhood used, if true then
+            %         Moore neighbourhood, if false Von Neumann
+            %         nieghbourhood used
+            %
+            % OUTPUTS
+            %
+            % basins = matrix of basin memberships (resolution by 
+            %       resolution). A value of 0 at basins(i,j) denotes the
+            %       corresponding location is dominance neutral. A value of
+            %       1 denotes that dominance paths rooted at the cell lead
+            %       to more than one distinct neutral region. A value
+            %       between 0.25 and 0.75 denotes that all dominance paths
+            %       starting from this location end in the same dominance
+            %       neutral regions -- all members of the same basin having
+            %       the same value in this range.
+            % neural_areas = resolution by resolution matrix. contigious
+            %       dominance neutral araes have same positive integer value. 
+            %       dominated located have a value of -1
+            % dominated = Boolean resolution by resolution matrix. true is
+            %       corresponding location is dominated.
+            % destination = resolution by resolution cell matrix, holding
+            %       the list of distinct neutral areas reached by all
+            %       downhill dominance walks commences at the cell (see the
+            %       neutral_areas matrix for mapping)
+            % offset = neighbourhood mapping matrix 
+            %
+            % plots dominance landscae given arguments
             [numObjectives,resolution,r] = size(Y);  
             if (resolution ~= r)
                 error('Second and third dimension of Y must be the same size');
@@ -610,17 +662,6 @@ classdef DBMOPP < handle
                     end
                 end
             end
-            
-            % in basins all neutral areas have value 1
-            % all locations leading to multiple local optima have value 1
-            % all locations leading to the same single optima have the same
-            % value
-            figure;
-            imagesc(x,y,basins');
-            colormap(gray)
-            set(gca,'YDir','normal')
-            view(2)
-            axis square
         end
         
         % INPUT
