@@ -535,7 +535,7 @@ classdef DBMOPP < handle
             %       neutral regions -- all members of the same basin having
             %       the same value in this range.
             %
-            [basins, neutral_areas, dominated, destination, dominating_neighbours, offset] = getDominanceLandscapeBasinsFromMatrix(Y,x,y,moore_neighbourhood);
+            [basins, neutral_areas, dominated, destination, dominating_neighbours, offset] = DBMOPP.getDominanceLandscapeBasinsFromMatrix(Y,x,y,moore_neighbourhood);
             
             % in basins all neutral areas have value 1
             % all locations leading to multiple local optima have value 1
