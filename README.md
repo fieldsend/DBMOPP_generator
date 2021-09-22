@@ -154,11 +154,8 @@ This is a 10-dimensional problem, with three competing objectives. 30% of the de
 
 ![Complex problem instance](/assets/images/complex_dbmopp.jpg "Complex problem instance")
 
-### (Current) stub methods
 
-The current methods are stubs and will throw errors, they will be filled in shortly
-
-<code>plotDominanceLandscape</code> -- will plot the dominance landscape of an instance (exists in the older generator, just need to port for the OO version)
+<code>plotDominanceLandscape</code> -- will plot the dominance landscape of an instance
 
 ## Older GECCO 2019 generator
 
