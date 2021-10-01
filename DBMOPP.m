@@ -349,8 +349,13 @@ classdef DBMOPP < handle
             
             % plot global Pareto set regions
             for i = obj.numberOfLocalParetoSets+1 : obj.numberOfLocalParetoSets + obj.numberOfGlobalParetoSets
-                C = convhull(obj.attractorRegions{i}.locations);
-                fill(obj.attractorRegions{i}.locations(C,1),obj.attractorRegions{i}.locations(obj.attractorRegions{i}.convhull,2),'r');
+                [n,~] = size(obj.attractorRegions{i}.locations);
+                if n>2
+                    C = convhull(obj.attractorRegions{i}.locations);
+                    fill(obj.attractorRegions{i}.locations(C,1),obj.attractorRegions{i}.locations(obj.attractorRegions{i}.convhull,2),'r');
+                else % just two points, so draw a line
+                    plot(obj.attractorRegions{i}.locations(:,1),obj.attractorRegions{i}.locations(:,2),'r-');
+                end
             end
             
             % plot dominance resistance set regions
@@ -1129,7 +1134,9 @@ classdef DBMOPP < handle
                 obj.attractorRegions{i}.objectiveIndices = 1:obj.numberOfObjectives;
                 obj.attractorRegions{i}.centre = obj.centreList(i,:); % some duplication of storage here, remove?
                 obj.attractorRegions{i}.radius = obj.centreRadii(i); % some duplication of storage here, remove?
-                obj.attractorRegions{i}.convhull = convhull(locations(:,1),locations(:,2));
+                if obj.numberOfObjectives > 2
+                    obj.attractorRegions{i}.convhull = convhull(locations(:,1),locations(:,2));
+                end
                 for k=1:obj.numberOfObjectives
                     initial_locations(i,:,k) = locations(k,:);
                 end
@@ -1156,7 +1163,9 @@ classdef DBMOPP < handle
                 obj.attractorRegions{i}.locations = locations(I(1:num_to_include),:);
                 obj.attractorRegions{i}.objectiveIndices = I(1:num_to_include);
                 obj.attractorRegions{i}.radius = obj.centreRadii(i);
-                obj.attractorRegions{i}.convhull = convhull(locations(:,1),locations(:,2));
+                if (length(locations(:,1)) > 2) %only calculate the convex hull if there are more than two points
+                    obj.attractorRegions{i}.convhull = convhull(locations(:,1),locations(:,2));
+                end
                 for k = 1:num_to_include
                     obj.attractorsList{I(k)}.locations = [obj.attractorsList{I(k)}.locations; locations(I(k),:)];
                 end
