@@ -21,7 +21,7 @@ classdef DBMOPP < handle
         numberOfGlobalParetoSets % number of global Pareto sets, >= 1
         proportionOfConstrainedSpaceIfChecker % proprtion of space in 2D defined as constraint violating if checker type used 0 <= p < 1
         globalParetoSetType % 0, 1, 2 -- see help
-        constraintType % 1, 2, 3, 4 -- see help
+        constraintType % 0, 1, 2, 3, 4, 5, 6, 7, 8 -- see help
         numberOfdiscontinousObjectiveFunctionRegions % number of regions generated indcuing discontinous objective values on their border
         variableSolutionDensity % is solution density variable? true, false. If true,  numberOfDesignVariables must be >2
         varyingObjectiveScales % varying objective scales, true, false
