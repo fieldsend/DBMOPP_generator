@@ -422,12 +422,20 @@ classdef DBMOPP < handle
             x = obj.get2DVersion(x);
             isPareto = obj.isPareto2D(x);
         end
-        
+        %--
         function [x, corresponding2Dpoint] = getAParetoSetMember(obj, suppressWarning)
             % [x, corresponding2Dpoint] = getAParetoSetMember(obj, suppressWarning)
             % SHOULD NOT BE USED IN OPTIMISATION PROCESS!!
             % Returns a random Pareto set member, uniformly from the Pareto
             % set, and the point in 2D it maps to
+            %
+            % INPUTS
+            % suppressWarning = pass value as true if you do not want to be warned 
+            %     that you should not use the method for optimisation!  
+            %
+            % OUTPUTS 
+            % x = a random Pareto set members, uniformly from the Pareto set
+            % corresponding2Dpoint = the point in 2D it maps to
             
             if suppressWarning == false
                 warning('This function should not be called as part of the optimisation process')
@@ -470,7 +478,27 @@ classdef DBMOPP < handle
             end
         end
         %--
-        
+        function [X, corresponding2Dpoints] = getParetoSetMembers(obj, M, suppressWarning)
+            % [X, corresponding2Dpoints] = getParetoSetMembers(obj, M, suppressWarning)
+            % SHOULD NOT BE USED IN OPTIMISATION PROCESS!!
+            %
+            % INPUTS
+            % M = number of samples
+            % suppressWarning = pass value as true if you do not want to be warned M times 
+            %     that you should not use the method for optimisation!  
+            %
+            % OUTPUTS 
+            % X = a set of random Pareto set members, uniformly from the Pareto
+            % set
+            % corresponding2Dpoints = the points in 2D it maps to
+            
+            X = zeros(M,N);
+            corresponding2Dpoints = zeros(M,2);
+            for i=1:M;
+                [X(i,:), corresponding2Dpoints(i,:)] = problem_instance.getAParetoSetMember(true);
+            end
+        end
+        %--
         function [objective_vector, soft_constraint_violation, hard_constraint_violation] = evaluate(obj,x)
             % [objective_vector, soft_constraint_violation, hard_constraint_violation] = evaluate(obj,x)
             %
@@ -495,9 +523,7 @@ classdef DBMOPP < handle
             obj.checkValidLength(x);
             x = obj.get2DVersion(x);
             [objective_vector, soft_constraint_violation, hard_constraint_violation] = obj.evaluate2D(x);
-        end
-        
-        
+        end    
     end
     
     % static helper methods (don't use instance state)
