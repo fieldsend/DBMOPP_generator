@@ -450,19 +450,62 @@ classdef DBMOPP < handle
                 
                 % check for degenerate 2D case
                 if (obj.constraintType == 2) || (obj.constraintType == 6)
-                    % if centre constraint type used, randomly choose an angle, use
-                    % corresponding radii from the Pareto set centre list and
-                    % project and return
-                    angle = rand() * 2.0 * pi;
-                    x = obj.centreList(k,:) + [obj.centreRadii(k) * cos(angle), obj.centreRadii(k)*sin(angle)];
-                    invalid = false;
+                        % if centre constraint type used, randomly choose an angle, use
+                        % corresponding radii from the Pareto set centre list and
+                        % project and return
+                        angle = rand() * 2.0 * pi;
+                        x = obj.centreList(k,:) + [obj.centreRadii(k) * cos(angle), obj.centreRadii(k)*sin(angle)];
+                        %x = x + eps*sign(rand(1,2)-0.5);
+                        if obj.numberOfObjectives == 2 
+                            % not all points on the circle will be Pareto optimal in 2 objective case. 
+                            min1 = obj.getObjectives(obj.attractorsList{1}.locations(k,:));
+                            min2 = obj.getObjectives(obj.attractorsList{2}.locations(k,:));
+                            value = obj.evaluate2D(x);
+                            if (value(2) <= min1(2)) && value(1) <= min2(1) % if solution isn't worse on either criterion than the attractors which minimise the other criterion
+                                % reflect through centre and double check
+                                % it is on the correct side of the circle to be in
+                                % the Pareto set
+                                reflected_point = 2*obj.centreList(k,:)-x;
+                                % missing out the divide by 2 on the areas,
+                                % as doesn't affect answer
+                                area_x = abs(x(1)*(obj.attractorsList{1}.locations(k,2) - obj.attractorsList{2}.locations(k,2)) + obj.attractorsList{1}.locations(k,1) * (obj.attractorsList{2}.locations(k,2) - x(2)) + obj.attractorsList{2}.locations(k,1) * (x(2) - obj.attractorsList{1}.locations(k,2)));  
+                                area_reflected = abs(reflected_point(1)*(obj.attractorsList{1}.locations(k,2) - obj.attractorsList{2}.locations(k,2)) + obj.attractorsList{1}.locations(k,1) * (obj.attractorsList{2}.locations(k,2) - reflected_point(2)) + obj.attractorsList{2}.locations(k,1) * (reflected_point(2) - obj.attractorsList{1}.locations(k,2))); 
+                                if area_x < area_reflected
+                                    invalid = false;
+                                end
+                            end
+                        else % MAY NEED ANOTHER CEHCK FOR THIS SPECIAL CASE OF THE CENTRE CONSTRAINT WITH OBJECTIVES NUMBER >2
+                            invalid = false;
+                        end
+                        % belt and braces check for contraint violation --
+                        % DOUBLE-CHECK IF BLOCK REDUNDANT
+                        if obj.getHardConstraintViolation(x)
+                            invalid = true;
+                        end
+                        if obj.getSoftConstraintViolation(x) > 0
+                            invalid = true;
+                        end
                 else
-                    % else, generate random point in circle,
-                    r = obj.centreRadii(k) * sqrt(rand());
-                    angle = rand() * 2.0 * pi;
-                    x = obj.centreList(k,:) + [r * cos(angle), r*sin(angle)];
-                    if (obj.isPareto2D(x)) % check if sample is Pareto optimal
+                    if obj.numberOfObjectives == 2 
+                        % need to put on the line between the two optima 
+                        x = obj.attractorsList{1}.locations(k,:) + rand()*(obj.attractorsList{2}.locations(k,:) - obj.attractorsList{1}.locations(k,:));
+
                         invalid = false;
+                        % check for constraint violations
+                        if obj.getHardConstraintViolation(x)
+                            invalid = true;
+                        end
+                        if obj.getSoftConstraintViolation(x) > 0
+                            invalid = true;
+                        end
+                    else
+                        % else, generate random point in circle,
+                        r = obj.centreRadii(k) * sqrt(rand());
+                        angle = rand() * 2.0 * pi;
+                        x = obj.centreList(k,:) + [r * cos(angle), r*sin(angle)];
+                        if (obj.isPareto2D(x)) % check if sample is Pareto optimal
+                            invalid = false;
+                        end
                     end
                 end
             end
@@ -1587,7 +1630,7 @@ classdef DBMOPP < handle
                 if (I(1) > obj.numberOfLocalParetoSets) && (I(1) <= obj.numberOfLocalParetoSets + obj.numberOfGlobalParetoSets)
                     if (obj.constraintType == 2) || (obj.constraintType == 6)
                         % special case where Pareto set lies on the
-                        % coundary of the circle due to the constraint
+                        % boundary of the circle due to the constraint
                         % covering the circle
                         if (abs(d(I(1))-obj.centreRadii(I(1))) < 1e4*eps(min(abs(d(I(1))),abs(obj.centreRadii(I(1)))))) % deal with rounding error
                             inHull = true;
