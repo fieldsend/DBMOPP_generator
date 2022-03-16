@@ -492,10 +492,10 @@ classdef DBMOPP < handle
             % set
             % corresponding2Dpoints = the points in 2D it maps to
             
-            X = zeros(M,N);
+            X = zeros(M,obj.numberOfDesignVariables);
             corresponding2Dpoints = zeros(M,2);
-            for i=1:M;
-                [X(i,:), corresponding2Dpoints(i,:)] = problem_instance.getAParetoSetMember(true);
+            for i=1:M
+                [X(i,:), corresponding2Dpoints(i,:)] = obj.getAParetoSetMember(true);
             end
         end
         %--
