@@ -52,6 +52,7 @@ classdef DBMOPP < handle
         paretoSetIndices % indices in the centreList correcponding to the Pareto set region centres
         rotations
         monte_carlo_samples = 10000;
+        fill_radii
         pivot_locations
         bracketing_locations_lower
         bracketing_locations_upper
@@ -65,7 +66,7 @@ classdef DBMOPP < handle
         function obj = DBMOPP(numberOfObjectives, numberOfDesignVariables, numberOfLocalParetoSets, numberOfDominanceResistanceRegions, ...
                 numberOfGlobalParetoSets, proportionOfConstrainedSpaceIfChecker, globalParetoSetType, constraintType, ...
                 numberOfdiscontinousObjectiveFunctionRegions, variableSolutionDensity, varyingObjectiveScales, proportionOfNeutralSpace,...
-                monte_carlo_samples)
+                monte_carlo_samples, fill_radii)
             
             % obj = DBMOPP(numberOfObjectives, numberOfDesignVariables, numberOfLocalParetoSets, numberOfDominanceResistanceRegions, ...
             %                numberOfGlobalParetoSets, proportionOfConstrainedSpaceIfChecker, globalParetoSetType, constraintType, ...
@@ -103,6 +104,10 @@ classdef DBMOPP < handle
             % proportionOfNeutralSpace = proportion of 2D space to make
             %     neutral
             % monte_carlo_samples = default 10000
+            % fill_radii = default true -- if true then radii of regions
+            %     set to try and fill the space (and be easier to 
+            %     vizualise) otherwise if false any size radii can be used,
+            %     so Pareto sets (may) be very small regions in space
             
             
             if (numberOfObjectives < 1)
@@ -176,6 +181,12 @@ classdef DBMOPP < handle
                 error('Need to set at least 1000 monte carlo samples for approximation');
             else
                 obj.monte_carlo_samples = monte_carlo_samples;
+            end
+
+            if exist('fill_radii','var') == false
+                obj.fill_radii = true;
+            else
+                obj.fill_radii  = fill_radii;
             end
             obj.initialise();
         end
@@ -1139,8 +1150,9 @@ classdef DBMOPP < handle
             
             %place centres of all attractor regions
             %SET AS OPTION ??
-            % radius = radius * rand(1,1); % random scaling
+           
             radius = obj.placeRegions(n,radius);
+            
             obj.centreRadii = ones(n,1)*radius;
             %reduce radii if local fronts being used
             if obj.numberOfLocalParetoSets > 0
@@ -1156,6 +1168,9 @@ classdef DBMOPP < handle
         end
         %--
         function [radius] = placeRegions(obj,n,radius)
+            if (obj.fill_radii == false)
+                radius = radius * rand(1,1); % random scaling, shrinking down if not wanting to fill
+            end
             effectiveBound = 1-radius;
             threshold = 4*radius;
             obj.centreList = zeros(n,2);
