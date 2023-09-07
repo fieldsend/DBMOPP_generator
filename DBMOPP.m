@@ -455,7 +455,9 @@ classdef DBMOPP < handle
                 error('Cannot grid the space with a resolution less than 1');
             end
             
-            theta=linspace(0,360,101); 
+
+            border_number = 10;
+            theta=linspace(0,360,border_number + 1); 
             theta(end)=[];
             xc=10^-6*cosd(theta);
             yc=10^-6*sind(theta);    
@@ -463,12 +465,10 @@ classdef DBMOPP < handle
 
             xy = linspace(-1,1,resolution);
             
-            figure;
-            border_number = 10;
             C = zeros(border_number,obj.numberOfObjectives);
             Z = zeros(resolution,resolution);
 
-            indices = 1:obj.numberOfObjectives.^2;
+            indices = 1:obj.numberOfObjectives^2;
             indices(1:obj.numberOfObjectives+1:obj.numberOfObjectives.^2) = [];
             for i=1:resolution
                 for j=1:resolution
