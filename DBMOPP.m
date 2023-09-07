@@ -241,13 +241,12 @@ classdef DBMOPP < handle
             %
             % INPUTS
             %
-            % index = index of which objective to plot
             % resolution = mesh size (number of cells on each dimension) to use
             %         when plotting the objective response
             %
-            % plots the single objective landscape of the obj instance for the
-            % 'index' objective. The optional argument resolution sets the grid
-            % on each access (default 500)
+            % plots the locations of the Pareto set members. 
+            % The optional argument resolution sets the grid
+            % on each axis (default 500)
             %
             if exist('resolution','var')==false
                 resolution = 500;
@@ -279,7 +278,6 @@ classdef DBMOPP < handle
             %
             % INPUTS
             %
-            % index = index of which objective to plot
             % resolution = mesh size (number of cells on each dimension) to use
             %         when plotting the objective response
             % moore_neighbourhood = type of neighbourhood used, if true then
@@ -310,8 +308,7 @@ classdef DBMOPP < handle
             %       neutral regions -- all members of the same basin having
             %       the same value in this range.
             %
-            % plots the single objective landscape of the obj instance for the
-            % 'index' objective. The optional argument resolution sets the grid
+            % plots the dominance landscape. The optional argument resolution sets the grid
             % on each access (default 500)
             %
             if exist('resolution','var')==false
@@ -384,7 +381,10 @@ classdef DBMOPP < handle
                     % just draw the point
                     plot(obj.attractorRegions{i}.locations(:,1),obj.attractorRegions{i}.locations(:,2),'b.');
                 elseif n>2 % enough to draw an area
-                    fill(obj.attractorRegions{i}.locations(C,1),obj.attractorRegions{i}.locations(obj.attractorRegions{i}.convhull,2),'b');
+                    size(C)
+                    size(obj.attractorRegions{i}.convhull)
+                    size(obj.attractorRegions{i}.locations)
+                    fill(obj.attractorRegions{i}.locations(C,1), obj.attractorRegions{i}.locations(C,2),'b');
                 elseif n==2 % just two points, so draw a line
                     plot(obj.attractorRegions{i}.locations(:,1),obj.attractorRegions{i}.locations(:,2),'b-');
                 end
@@ -417,6 +417,85 @@ classdef DBMOPP < handle
                 text(C(:,1),C(:,2),int2str(k));
             end
             
+        end
+        %--
+        function plotCorrelation(obj, corr_type, summary_type)
+            % function plotParetoSetMembers(obj, corr_type, summary_type)
+            %
+            % INPUTS
+            %
+            % resolution = mesh size (number of cells on each dimension) to use
+            %         when plotting the objective response
+            % corr_type = 'Pearson' (the default) to compute Pearson's linear
+            %        correlation coefficient, 'Kendall' to compute Kendall's
+            %        tau, or 'Spearman' to compute Spearman's rho.
+            % summary_type = If the number of objectives > 2, then the
+            %        matrix of correlations needs to be summarised by a single value, 
+            %        options are 'mean' (default), 'median', 'max' and
+            %        'min'
+            % plots the correlation landscape. The optional argument resolution sets the grid
+            % on each access (default 500). Correlation value/matrix at
+            % each grid point is calculated put placing a circle radius
+            % 10^-6 around each point and calculating with respect to 100
+            % equally placed samples on the edge of this circle.
+            %
+            if exist('resolution','var')==false
+                resolution = 500;
+            end
+
+            if exist('corr_type','var')==false
+                corr_type = 'pearson';
+            end
+
+            if exist('summary_type','var')==false
+                summary_type = 'mean';
+            end
+
+            if resolution < 1
+                error('Cannot grid the space with a resolution less than 1');
+            end
+            
+            theta=linspace(0,360,101); 
+            theta(end)=[];
+            xc=10^-6*cosd(theta);
+            yc=10^-6*sind(theta);    
+
+
+            xy = linspace(-1,1,resolution);
+            
+            figure;
+            border_number = 10;
+            C = zeros(border_number,obj.numberOfObjectives);
+            Z = zeros(resolution,resolution);
+
+            indices = 1:obj.numberOfObjectives.^2;
+            indices(1:obj.numberOfObjectives+1:obj.numberOfObjectives.^2) = [];
+            for i=1:resolution
+                for j=1:resolution
+                    for k=1:border_number
+                        C(k,:) = obj.evaluate2D([xy(i)+xc(k), xy(j)+yc(k)]);
+                    end
+                    if obj.numberOfObjectives == 2
+                        Z(i,j) = corr(C(:,1),C(:,2),'type',corr_type);
+                    else
+                        K = corr(C,'type',corr_type);
+                        if (strcmp(summary_type,'median'))
+                            Z(i,j) = median(K(indices));
+                        elseif (strcmp(summary_type,'max'))
+                            Z(i,j) = max(K(indices));
+                        elseif (strcmp(summary_type,'min'))
+                            Z(i,j) = min(K(indices));
+                        else
+                            Z(i,j) = mean(K(indices));
+                        end
+                    end
+                end
+            end
+            figure;
+            surfc(xy,xy,Z'); %the x-coordinates of the vertices corresponding to column indices of Z and the y-coordinates corresponding to row indices of Z, so transposing
+            view(2)
+            shading flat
+            axis square
         end
         %--
         function isPareto = isAParetoSetMember(obj, x, suppressWarning)
