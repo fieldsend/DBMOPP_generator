@@ -354,8 +354,13 @@ classdef DBMOPP < handle
             
             % plot local Pareto set regions
             for i = 1 : obj.numberOfLocalParetoSets
-                C = convhull(obj.attractorRegions{i}.locations);
-                fill(obj.attractorRegions{i}.locations(C,1),obj.attractorRegions{i}.locations(C,2),'g');
+                [n,~] = size(obj.attractorRegions{i}.locations);
+                if n>2
+                    C = convhull(obj.attractorRegions{i}.locations);
+                    fill(obj.attractorRegions{i}.locations(C,1),obj.attractorRegions{i}.locations(C,2),'g');
+                else % just two points, so draw a line
+                    plot(obj.attractorRegions{i}.locations(:,1),obj.attractorRegions{i}.locations(:,2),'g-');
+                end
             end
             
             % plot global Pareto set regions
