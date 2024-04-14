@@ -30,6 +30,8 @@ The public methods of this class are as follows:
 
 <code>plotProblemInstance()</code> Plots the different regions set up for this problem instance.
 
+<code>plotCorrelation(resolution, corr_type, summary_type)</code> Plots the 2D correlation plot for this problem. Samples points on a grid with <code>resolution</code> samples at each dimension. Uses the <code>corr_type</code> correlation type (Pearson [default], Kendall or Spearman) and <code>summary_type</code> (mean [default], median, max and min). Correlation value/matrix at each grid point is calculated put placing a circle radius 10^-6 around each point and calculating with respect to 100 equally placed samples on the edge of this circle.
+
 <code>isAParetoSetMember(x, suppressWarning)</code> Returns true if <code>x</code> is a Pareto set member, false otherwise. Obviously you should not be using this method during an optimisation! Pass <code>suppressWarning</code> as true if you don't want to be reminded of this...
 
 <code>getAParetoSetMember()</code> Returns a Pareto decision vector uniformly at random for this instance. It also returns the corresonding 2D projection for the design location.
