@@ -152,7 +152,7 @@ Let us generate a more complicated instance
 ```Matlab
 my_complex_instance = DBMOPP(3,10,3,3,2,0.3,2,8,2,false,true,0.2);
 ```
-This is a 10-dimensional problem, with three competing objectives. 30% of the design space is soft constraint violating, 20% is neutral, there are 2 global Pateto set regions, which do not duplicate performance. There are also local fronts and domainace resistance regions.
+This is a 10-dimensional problem, with three competing objectives. 30% of the design space is soft constraint violating, 20% is neutral, there are 2 global Pareto set regions, which do not duplicate performance. There are also local fronts and domainace resistance regions.
 
 ![Complex problem instance](/assets/images/complex_dbmopp.jpg "Complex problem instance")
 
