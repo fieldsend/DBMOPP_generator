@@ -13,7 +13,7 @@ Jonathan E. Fieldsend, Tinkle Chugh, Richard Allmendinger, and Kaisa Miettinen.
 IEEE Transactions on Evolutionary Computation, 
 to appear. doi: https://10.1109/TEVC.2021.3084119.
 
-All instance generation functionality is in this single file. Note there are a few "quality of life" methods still still be completed over the next month which will allow you to e.g. sample Pareto members, and some additionally plotting functions (the stubs for these are in the class and details are below). Illustrations of usage directly. Details regarding the earlier version of the generator can be found towards the bottom of this page.
+All instance generation functionality is in this single file. Note there some additional plotting functions still being added. Illustrations of usage directly. Details regarding the earlier version of the generator can be found towards the bottom of this page.
 
 ## DBMOPP class
 
